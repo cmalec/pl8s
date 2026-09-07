@@ -6,3 +6,4 @@ shots/*
 tools/__pycache__/
 .lock-waf_linux_build
 .lock-waf_linux2_build
+/.idea/
