@@ -1,0 +1,38 @@
+{
+  "name": "platecalc",
+  "author": "clawdius",
+  "version": "0.0.1",
+  "keywords": ["pebble-app", "fitness", "barbell"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Plate Calc",
+    "shortName": "PlateCalc",
+    "uuid": "c48ee385-2cee-4663-a08a-ac5078874a7b",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery",
+      "flint",
+      "gabbro"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [],
+    "resources": {
+      "media": [
+        {
+          "file": "images/menu_icon_platecalc.png",
+          "menuIcon": true,
+          "name": "IMAGE_MENU_ICON",
+          "type": "png"
+        }
+      ]
+    }
+  }
+}

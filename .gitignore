@@ -1,0 +1,8 @@
+build/
+shots/*
+!shots/s_default.png
+!shots/s_maxedit.png
+!shots/s_wizard.png
+tools/__pycache__/
+.lock-waf_linux_build
+.lock-waf_linux2_build
