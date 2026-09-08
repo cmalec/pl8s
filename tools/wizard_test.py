@@ -61,10 +61,10 @@ def main():
     if sig == base:
         raise SystemExit("wizard did not open (long-press dropped)")
 
-    # 7 confirms: 55 -> 45 -> 35 -> 25 -> 15 -> 10 -> 5 -> 2.5
-    for step in range(7):
+    # 8 confirms: step -> 55 -> 45 -> 35 -> 25 -> 15 -> 10 -> 5 -> 2.5
+    for step in range(8):
         sig, n = click_verified("select", sig, f"c{step}")
-        print(f"step {step + 1}/7 confirm ok ({'retry ' if n > 1 else ''}clicks)")
+        print(f"step {step + 1}/8 confirm ok ({'retry ' if n > 1 else ''}clicks)")
 
     # 10 verified downs: 10 -> 0 stored on the 2.5 lb step
     for step in range(10):
@@ -80,9 +80,8 @@ def main():
     a = read_png(base and f"{SHOTS}_base.png")
     b = read_png(final)
     w, h, ch = a[0], a[1], a[2]
-    rows = {"header": (0, 44), "row1": (44, 76), "row2": (76, 108),
-            "row3": (108, 140), "row4": (140, 172), "row5": (172, 204),
-            "footer": (204, 228)}
+    rows = {"header": (0, 52), "row1": (52, 86), "row2": (86, 120),
+            "row3": (120, 154), "row4": (154, 188), "row5": (188, 222)}
     changed = []
     for name, (y0, y1) in rows.items():
         npx = 0

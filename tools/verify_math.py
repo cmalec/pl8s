@@ -12,6 +12,7 @@ BAR_LB = 45
 PLATE_UNITS = [22, 18, 14, 10, 6, 4, 2, 1]  # 55/45/35/25/15/10/5/2.5 lb
 NUM_ROWS = 5
 PERCENTS = [90, 80, 70, 60, 50]
+PERCENTS_FINE = [90, 85, 80, 75, 70, 65, 60]  # 5% step mode
 MAX_LB_LIMIT = 995
 MAX_SIDE_UNITS = 180
 COUNT_UNLIMITED = 10
@@ -47,14 +48,17 @@ def calc_row(max_lb, pct, counts):
 
 def run_suite(name, counts, max_lo, max_hi):
     fails = []
-    for max_lb in range(max_lo, max_hi + 1):
-        for pct in PERCENTS:
-            shown, units = calc_row(max_lb, pct, counts)
-            # displayed weight must be buildable from this inventory
-            ok, rebuilt = try_load(units, counts)
-            if not ok or sum(PLATE_UNITS[i] * rebuilt[i] for i in range(8)) != units:
-                fails.append((max_lb, pct, shown, units))
-    print(f"{name}: {'OK' if not fails else fails[:5]} ({max_hi - max_lo + 1} maxima x 5 rows)")
+    rows = 0
+    for pcts in (PERCENTS, PERCENTS_FINE):
+        for max_lb in range(max_lo, max_hi + 1):
+            for pct in pcts:
+                rows += 1
+                shown, units = calc_row(max_lb, pct, counts)
+                # displayed weight must be buildable from this inventory
+                ok, rebuilt = try_load(units, counts)
+                if not ok or sum(PLATE_UNITS[i] * rebuilt[i] for i in range(8)) != units:
+                    fails.append((max_lb, pct, shown, units))
+    print(f"{name}: {'OK' if not fails else fails[:5]} ({max_hi - max_lo + 1} maxima x {rows // (max_hi - max_lo + 1)} rows)")
     return not fails
 
 
@@ -98,14 +102,14 @@ for combo in itertools.product(range(4), repeat=8):
     if count % 7:
         continue
     for max_lb in (45, 135, 225, 315, 495, 995):
-        for pct in PERCENTS:
+        for pct in PERCENTS + PERCENTS_FINE:
             shown, units = calc_row(max_lb, pct, list(combo))
             ok, rebuilt = try_load(units, list(combo))
             if not ok or sum(PLATE_UNITS[i] * rebuilt[i] for i in range(8)) != units:
                 bad += 1
                 if bad <= 3:
                     print("EXHAUSTIVE FAIL", combo, max_lb, pct, shown, units)
-print(f"sampling of 4^8 inventories: {'OK' if bad == 0 else str(bad) + ' failures'} (9372 inventories x 30 rows)")
+print(f"sampling of 4^8 inventories: {'OK' if bad == 0 else str(bad) + ' failures'} (9372 inventories x 72 rows)")
 allok = allok and bad == 0
 
 print("ALL OK" if allok else "FAILURES FOUND")

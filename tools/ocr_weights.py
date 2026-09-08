@@ -9,9 +9,14 @@ import sys
 sys.path.insert(0, "tools")
 from png_dump import read_png  # noqa: E402
 
-ROW_H = 32
-TOP_Y = 44
-W_X0, W_X1 = 62, 130  # weight text zone: WEIGHT_X=62, gothic24 3 digits ~55px
+ROW_H = 34
+TOP_Y = 52
+W_X0, W_X1 = 33, 82  # weight text zone: WEIGHT_X=33, gothic24 3 digits ~44px
+N_ROWS = 5
+# 5% step mode: 7 rows at 24px (compact layout).
+ROW_H_FINE = 24
+TOP_Y_FINE = 52
+N_ROWS_FINE = 7
 
 
 def bitmap(path, x0, x1, y0, y1, thresh=110):
@@ -75,12 +80,12 @@ def score(a, b):
     return hits / total
 
 
-def learn(ref_path):
+def learn(ref_path, top_y=TOP_Y, row_h=ROW_H, n_rows=N_ROWS):
     known = ["205", "180", "160", "135", "115"]
     templates = {}
-    for row, text in enumerate(known):
-        y0 = TOP_Y + row * ROW_H
-        band = bitmap(ref_path, W_X0, W_X1, y0 + 6, y0 + ROW_H - 2)
+    for row, text in enumerate(known[:n_rows]):
+        y0 = top_y + row * row_h
+        band = bitmap(ref_path, W_X0, W_X1, y0 + 6, y0 + row_h - 2)
         digits = split_digits(band)
         if len(digits) != len(text):
             print(f"ref row{row}: expected {len(text)} digits, got {len(digits)}",
@@ -90,11 +95,11 @@ def learn(ref_path):
     return templates
 
 
-def recognize(path, templates):
+def recognize(path, templates, top_y=TOP_Y, row_h=ROW_H, n_rows=N_ROWS):
     out = []
-    for row in range(5):
-        y0 = TOP_Y + row * ROW_H
-        band = bitmap(path, W_X0, W_X1, y0 + 6, y0 + ROW_H - 2)
+    for row in range(n_rows):
+        y0 = top_y + row * row_h
+        band = bitmap(path, W_X0, W_X1, y0 + 6, y0 + row_h - 2)
         digits = split_digits(band)
         s = ""
         for d in digits:
@@ -110,7 +115,11 @@ def recognize(path, templates):
 
 if __name__ == "__main__":
     ref, target = sys.argv[1], sys.argv[2]
-    t = learn(ref)
+    # optional: --fine selects the 5% step geometry (7 rows, 24px)
+    fine = len(sys.argv) > 3 and sys.argv[3] == "--fine"
+    top_y, row_h, n_rows = (TOP_Y_FINE, ROW_H_FINE, N_ROWS_FINE) if fine \
+        else (TOP_Y, ROW_H, N_ROWS)
+    t = learn(ref, top_y, row_h, n_rows)
     print("digits learned:", sorted(t.keys()))
-    for row, s in enumerate(recognize(target, t)):
+    for row, s in enumerate(recognize(target, t, top_y, row_h, n_rows)):
         print(f"row{row + 1}: {s}")
