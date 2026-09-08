@@ -494,21 +494,14 @@ static void update_ui(void) {
   }
   text_layer_set_text(s_title_layer, title_buf);
 
-  char dbg[96];
-  int off = snprintf(dbg, sizeof(dbg), "UI max=%d step=%d w=", s_max_lb,
-                     s_pct_step);
   for (int row = 0; row < s_num_rows; row++) {
     int counts[PLATE_N];
     int shown_lb;
     calc_row(s_max_lb, 90 - row * s_pct_step, &shown_lb, counts);
     snprintf(weight_bufs[row], sizeof(weight_bufs[row]), "%d", shown_lb);
     text_layer_set_text(s_weight_layers[row], weight_bufs[row]);
-    if (off > 0 && off < (int)sizeof(dbg)) {
-      off += snprintf(dbg + off, sizeof(dbg) - off, "%s%d",
-                      row ? "," : "", shown_lb);
-    }
   }
-  APP_LOG(APP_LOG_LEVEL_INFO, "%s", dbg);
+  APP_LOG(APP_LOG_LEVEL_INFO, "UI max=%d step=%d", s_max_lb, s_pct_step);
   layer_mark_dirty(s_glyph_layer);
 }
 
@@ -585,24 +578,17 @@ static TextLayer *make_text_layer(GRect frame, GFont font, GColor color,
 #if defined(PBL_COLOR) && LAYOUT_LARGE
 // Load the pre-rendered rotated weight labels, compact set when in 5% mode.
 static void load_labels(void) {
-  if (s_num_rows > 5) {
-    s_label_bmps[0] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_55C);
-    s_label_bmps[1] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_45C);
-    s_label_bmps[2] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_35C);
-    s_label_bmps[3] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_25C);
-    s_label_bmps[4] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_15C);
-    s_label_bmps[5] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_10C);
-    s_label_bmps[6] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_5C);
-    s_label_bmps[7] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_2P5C);
-  } else {
-    s_label_bmps[0] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_55);
-    s_label_bmps[1] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_45);
-    s_label_bmps[2] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_35);
-    s_label_bmps[3] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_25);
-    s_label_bmps[4] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_15);
-    s_label_bmps[5] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_10);
-    s_label_bmps[6] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_5);
-    s_label_bmps[7] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_2P5);
+  static const uint32_t ids[2][PLATE_N] = {
+    {RESOURCE_ID_LABEL_55, RESOURCE_ID_LABEL_45, RESOURCE_ID_LABEL_35,
+     RESOURCE_ID_LABEL_25, RESOURCE_ID_LABEL_15, RESOURCE_ID_LABEL_10,
+     RESOURCE_ID_LABEL_5,  RESOURCE_ID_LABEL_2P5},
+    {RESOURCE_ID_LABEL_55C, RESOURCE_ID_LABEL_45C, RESOURCE_ID_LABEL_35C,
+     RESOURCE_ID_LABEL_25C, RESOURCE_ID_LABEL_15C, RESOURCE_ID_LABEL_10C,
+     RESOURCE_ID_LABEL_5C,  RESOURCE_ID_LABEL_2P5C},
+  };
+  for (int i = 0; i < PLATE_N; i++) {
+    s_label_bmps[i] =
+        gbitmap_create_with_resource(ids[s_num_rows > 5 ? 1 : 0][i]);
   }
 }
 #endif  // PBL_COLOR && LAYOUT_LARGE
