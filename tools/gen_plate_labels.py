@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate rotated plate-label PNGs for Plate Calc.
+"""Generate rotated plate-label PNGs for pl8s.
 
 Each label is the plate weight rendered vertically (rotated so it reads
 bottom-to-top along the plate face), on a transparent background, in a

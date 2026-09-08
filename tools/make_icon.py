@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the PlateCalc menu icon (25x25 PNG) with no external deps.
+"""Generate the pl8s menu icon (25x25 PNG) with no external deps.
 
 White barbell glyph on transparent background, drawn as a pixel map.
 """
@@ -53,6 +53,6 @@ png += chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 6, 0, 0, 0))
 png += chunk(b"IDAT", zlib.compress(raw))
 png += chunk(b"IEND", b"")
 
-with open("resources/images/menu_icon_platecalc.png", "wb") as f:
+with open("resources/images/menu_icon.png", "wb") as f:
     f.write(png)
-print("wrote resources/images/menu_icon_platecalc.png", len(png), "bytes")
+print("wrote resources/images/menu_icon.png", len(png), "bytes")

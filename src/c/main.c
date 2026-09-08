@@ -1,11 +1,14 @@
 /**
- * Plate Calc - a minimalist barbell percentage + plate calculator for Pebble.
+ * pl8s - "plates", a minimalist barbell percentage + plate calculator for
+ * Pebble.
  *
- * Enter your max for an exercise, and the app shows five descending
- * percentages (90/80/70/60/50) with the weight to load and a glyph of the
- * plates needed per side. Large color displays (emery/gabbro) draw each
- * plate as a fat disc with its weight printed vertically on the face; the
- * backlight stays on while the app is foregrounded.
+ * Enter your max for an exercise, and the app shows descending
+ * percentages (90/80/70/60/50 or 90..60 in 5% steps) with the weight to
+ * load and a glyph of the plates needed per side. Large color displays
+ * (emery/gabbro) draw each plate as a fat disc with its weight printed
+ * vertically on the face; the backlight stays on while the app is
+ * foregrounded. Settings can be changed on the watch (hold SEL) or from
+ * the phone app's config page (src/pkjs/index.js + config.html).
  *
  * Assumptions: 45 lb Olympic bar; plates 55/45/35/25/15/10/5/2.5 lb.
  * Percentages are snapped down to the nearest weight buildable with the
@@ -773,6 +776,80 @@ static void results_window_unload(Window *window) {
 }
 
 // ---------------------------------------------------------------------------
+// Phone configuration (AppMessage)
+// ---------------------------------------------------------------------------
+
+// Settings pushed from the phone config page (src/pkjs/index.js + config.html).
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+  (void)context;
+  bool step_changed = false;
+  bool state_changed = false;
+
+  Tuple *t = dict_find(iter, MESSAGE_KEY_STEP);
+  if (t != NULL && t->type == TUPLE_INT) {
+    int v = (int)t->value->int32;
+    if (v == PCT_STEP_FINE || v == PCT_STEP_DEFAULT) {
+      if (v != s_pct_step) {
+        s_pct_step = v;
+        persist_write_int(PERSIST_KEY_STEP, s_pct_step);
+        step_changed = true;
+        state_changed = true;
+      }
+    }
+    APP_LOG(APP_LOG_LEVEL_INFO, "msg: step=%d", v);
+  }
+
+  t = dict_find(iter, MESSAGE_KEY_MAX_LB);
+  if (t != NULL && t->type == TUPLE_INT) {
+    int v = (int)t->value->int32;
+    if (v >= BAR_LB && v <= MAX_LB_LIMIT) {
+      s_max_lb = v;
+      persist_write_int(PERSIST_KEY_MAX, s_max_lb);
+      state_changed = true;
+    }
+    APP_LOG(APP_LOG_LEVEL_INFO, "msg: max=%d", v);
+  }
+
+  // MESSAGE_KEY_* are externs resolved at link time, so they cannot appear
+  // in static initializers; assign them in the handler body.
+  uint32_t plate_keys[PLATE_N];
+  plate_keys[0] = MESSAGE_KEY_PLATE_55;
+  plate_keys[1] = MESSAGE_KEY_PLATE_45;
+  plate_keys[2] = MESSAGE_KEY_PLATE_35;
+  plate_keys[3] = MESSAGE_KEY_PLATE_25;
+  plate_keys[4] = MESSAGE_KEY_PLATE_15;
+  plate_keys[5] = MESSAGE_KEY_PLATE_10;
+  plate_keys[6] = MESSAGE_KEY_PLATE_5;
+  plate_keys[7] = MESSAGE_KEY_PLATE_2P5;
+  for (int i = 0; i < PLATE_N; i++) {
+    t = dict_find(iter, plate_keys[i]);
+    if (t != NULL && t->type == TUPLE_INT) {
+      int v = (int)t->value->int32;
+      if (v < 0) {
+        v = 0;
+      }
+      if (v > COUNT_UNLIMITED) {
+        v = COUNT_UNLIMITED;
+      }
+      if (v != s_plate_counts[i]) {
+        s_plate_counts[i] = (int8_t)v;
+        state_changed = true;
+      }
+      APP_LOG(APP_LOG_LEVEL_INFO, "msg: plate[%d]=%d", i, v);
+    }
+  }
+
+  if (state_changed) {
+    persist_write_data(PERSIST_KEY_SETTINGS, s_plate_counts,
+                       sizeof(s_plate_counts));
+    if (step_changed) {
+      rebuild_row_layers();
+    }
+    update_ui();
+  }
+}
+
+// ---------------------------------------------------------------------------
 // App lifecycle
 // ---------------------------------------------------------------------------
 
@@ -816,6 +893,11 @@ static void init(void) {
       .unload = results_window_unload,
   });
   window_stack_push(s_results_window, true);
+
+  // Phone config page (settings gear) pushes values over AppMessage.
+  app_message_register_inbox_received(inbox_received_handler);
+  app_message_open(app_message_inbox_size_maximum(),
+                   app_message_outbox_size_maximum());
   APP_LOG(APP_LOG_LEVEL_INFO, "init complete");
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tiny OCR for PlateCalc screenshots: template-match weight digits.
+"""Tiny OCR for pl8s screenshots: template-match weight digits.
 
 Learns digit templates from a reference screenshot with known row weights,
 then reads the weight column of a target screenshot.
