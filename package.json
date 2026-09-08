@@ -1,13 +1,13 @@
 {
-  "name": "platecalc",
-  "author": "clawdius",
+  "name": "pl8s",
+  "author": "cmalec",
   "version": "0.0.1",
-  "keywords": ["pebble-app", "fitness", "barbell"],
+  "keywords": ["pebble-app", "fitness", "barbell", "plates"],
   "private": true,
   "dependencies": {},
   "pebble": {
-    "displayName": "Plate Calc",
-    "shortName": "PlateCalc",
+    "displayName": "pl8s",
+    "shortName": "pl8s",
     "uuid": "c48ee385-2cee-4663-a08a-ac5078874a7b",
     "sdkVersion": "3",
     "enableMultiJS": true,
@@ -23,11 +23,24 @@
     "watchapp": {
       "watchface": false
     },
-    "messageKeys": [],
+    "capabilities": ["configurable"],
+    "messageKeys": [
+      "STEP",
+      "MAX_LB",
+      "PLATE_55",
+      "PLATE_45",
+      "PLATE_35",
+      "PLATE_25",
+      "PLATE_15",
+      "PLATE_10",
+      "PLATE_5",
+      "PLATE_2P5",
+      "OPEN_CONFIG"
+    ],
     "resources": {
       "media": [
         {
-          "file": "images/menu_icon_platecalc.png",
+          "file": "images/menu_icon.png",
           "menuIcon": true,
           "name": "IMAGE_MENU_ICON",
           "type": "png"
