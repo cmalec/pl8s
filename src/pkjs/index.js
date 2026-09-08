@@ -72,14 +72,3 @@ Pebble.addEventListener('webviewclosed', function(e) {
       function() { console.log('pl8s config send failed'); });
   }
 });
-
-// The watch asked the phone to open the config page (OPEN_CONFIG message).
-Pebble.addEventListener('appmessage', function(e) {
-  if (e.payload && e.payload.OPEN_CONFIG) {
-    if (typeof Pebble.openConfig === 'function') {
-      Pebble.openConfig();
-    } else {
-      Pebble.openURL(CONFIG_URL);
-    }
-  }
-});
