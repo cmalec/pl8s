@@ -2,7 +2,7 @@
 
 A minimalist barbell percentage + plate calculator for Pebble, written in C.
 
-Enter your training max for an exercise and Plate Calc shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a big disc with its weight printed vertically on the face, color-coded by size class; compact displays keep the thin side-view bars.
+Enter your training max for an exercise and Plate Calc shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a big disc with its weight printed vertically on the face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep the thin side-view bars.
 
 ![results screen](shots/s_default.png)
 
