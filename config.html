@@ -118,8 +118,29 @@
     location.href = 'pebblejs://close#' + frag;
   }
 
+  // Query params supplied by src/pkjs/index.js (current watch settings):
+  // ?step=..&max=..&p55=..&p45=..&p35=..&p25=..&p15=..&p10=..&p5=..&p2p5=..
+  function params() {
+    var out = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function(kv) {
+      if (!kv) { return; }
+      var i = kv.indexOf('=');
+      out[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1));
+    });
+    return out;
+  }
+
+  function num(v, dflt) {
+    var n = parseInt(v, 10);
+    return isNaN(n) ? dflt : n;
+  }
+
   function build() {
+    var q = params();
     var wrap = document.getElementById('plates');
+    var step = num(q.step, 10);
+    document.getElementById('step').value = (step === 5) ? 5 : 10;
+    document.getElementById('max').value = q.max ? num(q.max, 225) : 225;
     PLATES.forEach(function(p) {
       var row = document.createElement('div');
       row.className = 'plate-row';
@@ -132,12 +153,15 @@
       name.className = 'name';
       name.textContent = p.lb + ' lb';
 
+      var key = 'p' + p.lb.replace('.', 'p');
+      var count = q[key] !== undefined ? num(q[key], 10) : 10;
+
       var input = document.createElement('input');
       input.type = 'number';
       input.min = 0;
       input.max = 10;
       input.step = 1;
-      input.value = 10;
+      input.value = count;
       input.dataset.lb = p.lb;
 
       row.appendChild(disc);

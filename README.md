@@ -33,12 +33,24 @@ The config page is a single self-contained file: [`config.html`](config.html). I
 var CONFIG_URL = 'https://cmalec.github.io/pl8s/config.html';
 ```
 
-GitHub Pages works out of the box for this repo. The page talks to the watch via the standard Pebble config protocol:
+GitHub Pages works out of the box for this repo. The page talks to the watch via the standard Pebble config protocol, and it mirrors
+**everything the on-watch settings wizard can change** — percent step, exercise
+max, and per-plate counts — prefilled with the current values:
 
-1. The phone app's gear fires `showConfiguration` in `src/pkjs/index.js`, which opens `CONFIG_URL`.
-2. Save redirects to `pebblejs://close#<json>`; the phone decodes it and fires `webviewclosed` with the settings.
-3. `src/pkjs/index.js` forwards them to the watch with `Pebble.sendAppMessage`, keyed by the `messageKeys` in `package.json` (`STEP`, `MAX_LB`, `PLATE_*`).
-4. `src/c/main.c` (`inbox_received_handler`) validates, persists, and redraws.
+1. The watch pushes its current settings when asked: `src/pkjs/index.js` sends a
+   `SYNC` AppMessage on JS ready and on every gear tap; `src/c/main.c` replies
+   with `STEP`, `MAX_LB`, and all `PLATE_*` values. The JS side caches them in
+   localStorage and appends them to the config URL as query params.
+2. The phone app's gear fires `showConfiguration`, which opens
+   `CONFIG_URL + '?step=..&max=..&p55=..&p2p5=..'`; `config.html` prefills the
+   form from those params.
+3. Save redirects to `pebblejs://close#<json>`; the phone decodes it and fires `webviewclosed` with the settings.
+4. `src/pkjs/index.js` forwards them to the watch with `Pebble.sendAppMessage`, keyed by the `messageKeys` in `package.json` (`STEP`, `MAX_LB`, `PLATE_*`).
+5. `src/c/main.c` (`inbox_received_handler`) validates, persists, and redraws.
+
+The watch-only wizard (hold SEL) and the phone page can be used interchangeably;
+the watch pushes its state after the wizard closes too, so the page always opens
+showing current values.
 
 Message keys are shared between the C build (`MESSAGE_KEY_*` from
 `build/include/message_keys.auto.h`) and the JS runtime (`message_keys.json`), both generated from `messageKeys` in `package.json`.

@@ -417,6 +417,7 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
 
 static void update_ui(void);  // forward decl (used by the count window below)
 static void rebuild_row_layers(void);  // forward decl (wizard step change)
+static void send_settings_to_phone(void);  // fwd decl (wizard uses it too)
 
 // ---------------------------------------------------------------------------
 // Plate-count settings window (number entry)
@@ -467,6 +468,7 @@ static void count_selected_handler(struct NumberWindow *nw, void *context) {
     } else {
       s_count_index = -1;
       window_stack_pop(true);  // wizard finished
+      send_settings_to_phone();  // keep the phone config page prefilled
     }
   }
   update_ui();
@@ -765,13 +767,39 @@ static void results_window_unload(Window *window) {
 // Phone configuration (AppMessage)
 // ---------------------------------------------------------------------------
 
-// Settings pushed from the phone config page (src/pkjs/index.js + config.html).
+// Plate message keys, filled once at startup (MESSAGE_KEY_* are link-time
+// externs, so they cannot appear in static initializers).
+static uint32_t s_plate_keys[PLATE_N];
+
+// Push the current settings to the phone so the config page can prefill.
+static void send_settings_to_phone(void) {
+  DictionaryIterator *iter;
+  if (app_message_outbox_begin(&iter) != APP_MSG_OK) {
+    return;
+  }
+  dict_write_int32(iter, MESSAGE_KEY_STEP, s_pct_step);
+  dict_write_int32(iter, MESSAGE_KEY_MAX_LB, s_max_lb);
+  for (int i = 0; i < PLATE_N; i++) {
+    dict_write_int32(iter, s_plate_keys[i], s_plate_counts[i]);
+  }
+  AppMessageResult r = app_message_outbox_send();
+  if (r != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "outbox send failed: %d", r);
+  }
+}
+
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   (void)context;
   bool step_changed = false;
   bool state_changed = false;
 
-  Tuple *t = dict_find(iter, MESSAGE_KEY_STEP);
+  Tuple *t = dict_find(iter, MESSAGE_KEY_SYNC);
+  if (t != NULL) {
+    send_settings_to_phone();  // phone (re)connected / config page opening
+    return;
+  }
+
+  t = dict_find(iter, MESSAGE_KEY_STEP);
   if (t != NULL && t->type == TUPLE_INT) {
     int v = (int)t->value->int32;
     if (v == PCT_STEP_FINE || v == PCT_STEP_DEFAULT) {
@@ -796,19 +824,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     APP_LOG(APP_LOG_LEVEL_INFO, "msg: max=%d", v);
   }
 
-  // MESSAGE_KEY_* are externs resolved at link time, so they cannot appear
-  // in static initializers; assign them in the handler body.
-  uint32_t plate_keys[PLATE_N];
-  plate_keys[0] = MESSAGE_KEY_PLATE_55;
-  plate_keys[1] = MESSAGE_KEY_PLATE_45;
-  plate_keys[2] = MESSAGE_KEY_PLATE_35;
-  plate_keys[3] = MESSAGE_KEY_PLATE_25;
-  plate_keys[4] = MESSAGE_KEY_PLATE_15;
-  plate_keys[5] = MESSAGE_KEY_PLATE_10;
-  plate_keys[6] = MESSAGE_KEY_PLATE_5;
-  plate_keys[7] = MESSAGE_KEY_PLATE_2P5;
   for (int i = 0; i < PLATE_N; i++) {
-    t = dict_find(iter, plate_keys[i]);
+    t = dict_find(iter, s_plate_keys[i]);
     if (t != NULL && t->type == TUPLE_INT) {
       int v = (int)t->value->int32;
       if (v < 0) {
@@ -880,7 +897,18 @@ static void init(void) {
   });
   window_stack_push(s_results_window, true);
 
-  // Phone config page (settings gear) pushes values over AppMessage.
+  // Phone configuration (settings gear in the phone app): the JS side
+  // requests the current settings with SYNC, pushes changes with STEP /
+  // MAX_LB / PLATE_*. All MESSAGE_KEY_* values are link-time externs; copy
+  // the plate ones into the runtime table once.
+  s_plate_keys[0] = MESSAGE_KEY_PLATE_55;
+  s_plate_keys[1] = MESSAGE_KEY_PLATE_45;
+  s_plate_keys[2] = MESSAGE_KEY_PLATE_35;
+  s_plate_keys[3] = MESSAGE_KEY_PLATE_25;
+  s_plate_keys[4] = MESSAGE_KEY_PLATE_15;
+  s_plate_keys[5] = MESSAGE_KEY_PLATE_10;
+  s_plate_keys[6] = MESSAGE_KEY_PLATE_5;
+  s_plate_keys[7] = MESSAGE_KEY_PLATE_2P5;
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(),
                    app_message_outbox_size_maximum());
