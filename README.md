@@ -2,11 +2,10 @@
 
 A minimalist barbell percentage + plate calculator for Pebble, written in C.
 
-Enter your training max for an exercise and pl8s shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a big disc with its weight printed vertically on the face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep the thin side-view bars.
+Enter your training max for an exercise and pl8s shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a big disc with its weight printed vertically on the face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep the thin
+side-view bars.
 
 ![results screen](shots/s_default.png)
-
-Source: <https://github.com/cmalec/pl8s>
 
 ## Features
 
@@ -21,23 +20,20 @@ Source: <https://github.com/cmalec/pl8s>
 
 ## Screenshots
 
-|                                   |                                               |
-|-----------------------------------|-----------------------------------------------|
-| ![max entry](shots/s_maxedit.png) | ![settings wizard](shots/s_wizard.png)        |
-| Max entry (NumberWindow)          | Settings wizard (hold SEL): percent step      |
+|                                   |                                          |
+|-----------------------------------|------------------------------------------|
+| ![max entry](shots/s_maxedit.png) | ![settings wizard](shots/s_wizard.png)   |
+| Max entry (NumberWindow)          | Settings wizard (hold SEL): percent step |
 
 ## Phone settings page
 
-The config page is a single self-contained file: [`config.html`](config.html).
-It must be hosted at an http(s) URL the phone can open — the page location is
-set in `src/pkjs/index.js` (`CONFIG_URL`):
+The config page is a single self-contained file: [`config.html`](config.html). It must be hosted at an http (s) URL the phone can open — the page location is set in `src/pkjs/index.js` (`CONFIG_URL`):
 
 ```js
 var CONFIG_URL = 'https://cmalec.github.io/pl8s/config.html';
 ```
 
-GitHub Pages works out of the box for this repo. The page talks to the watch
-via the standard Pebble config protocol:
+GitHub Pages works out of the box for this repo. The page talks to the watch via the standard Pebble config protocol:
 
 1. The phone app's gear fires `showConfiguration` in `src/pkjs/index.js`, which opens `CONFIG_URL`.
 2. Save redirects to `pebblejs://close#<json>`; the phone decodes it and fires `webviewclosed` with the settings.
@@ -45,15 +41,15 @@ via the standard Pebble config protocol:
 4. `src/c/main.c` (`inbox_received_handler`) validates, persists, and redraws.
 
 Message keys are shared between the C build (`MESSAGE_KEY_*` from
-`build/include/message_keys.auto.h`) and the JS runtime (`message_keys.json`),
-both generated from `messageKeys` in `package.json`.
+`build/include/message_keys.auto.h`) and the JS runtime (`message_keys.json`), both generated from `messageKeys` in `package.json`.
 
 ## Building & running
 
 ```sh
+pebble login
 pebble build                          # build for all targetPlatforms
 pebble install --emulator emery       # install on the emery emulator
-pebble install --phone <ip>           # install to a paired phone
+pebble install --cloudpebble          # install to a paired phone
 ```
 
 Testing phone-side pushes from the emulator:
