@@ -2,8 +2,10 @@
  * Plate Calc - a minimalist barbell percentage + plate calculator for Pebble.
  *
  * Enter your max for an exercise, and the app shows five descending
- * percentages (90/80/70/60/50) with the weight to load and a side-view
- * glyph of the plates needed per side.
+ * percentages (90/80/70/60/50) with the weight to load and a glyph of the
+ * plates needed per side. Large color displays (emery/gabbro) draw each
+ * plate as a fat disc with its weight printed vertically on the face; the
+ * backlight stays on while the app is foregrounded.
  *
  * Assumptions: 45 lb Olympic bar; plates 55/45/35/25/15/10/5/2.5 lb.
  * Percentages are snapped down to the nearest weight buildable with the
@@ -26,11 +28,15 @@ static const int PLATE_UNITS[PLATE_N] = {22, 18, 14, 10, 6, 4, 2, 1};
 static const char *const PLATE_LB_STRS[] = {"55", "45", "35", "25",
                                             "15", "10", "5",  "2.5"};
 
-#define NUM_ROWS 5
-static const int PERCENTS[NUM_ROWS] = {90, 80, 70, 60, 50};
+// Percentage rows: 10% step shows 90..50 (5 rows), 5% step 90..60 (7 rows).
+// The step is user-selectable in the settings wizard and persisted.
+#define MAX_ROWS 7
+#define PCT_STEP_FINE 5
+#define PCT_STEP_DEFAULT 10
 
 #define PERSIST_KEY_MAX 1
 #define PERSIST_KEY_SETTINGS 2
+#define PERSIST_KEY_STEP 3
 #define DEFAULT_MAX_LB 225
 // UI cap for the exercise max. With unlimited plates every 2.5 lb step up to
 // this max is loadable; with a limited inventory the math snaps down to the
@@ -55,19 +61,35 @@ static const int PERCENTS[NUM_ROWS] = {90, 80, 70, 60, 50};
 #endif
 
 #if LAYOUT_LARGE
-#define HEADER_H 36
-#define ROW_H 32
-#define TOP_Y 44
-#define PCT_W 56
-#define WEIGHT_X 62
-#define WEIGHT_W 78
+// Large rect displays (emery 200x228, gabbro 260x260): each row gets a tall
+// band with big labeled plate discs. ROW heights are computed at window load
+// from the actual display height (see results_window_load).
+#define HEADER_H 48
+#define TOP_Y 52
+#define PCT_W 28
+#define WEIGHT_X 34
+#define WEIGHT_W 55
+#define HINT_Y 30
 #define FONT_HEADER FONT_KEY_GOTHIC_24_BOLD
-#define FONT_PCT FONT_KEY_GOTHIC_18_BOLD
+#define FONT_HINT FONT_KEY_GOTHIC_14
+#define FONT_PCT FONT_KEY_GOTHIC_14_BOLD
 #define FONT_WEIGHT FONT_KEY_GOTHIC_24_BOLD
-#define FONT_FOOTER FONT_KEY_GOTHIC_14
-#define PLATE_H_BIG 20
-#define PLATE_H_MID 13
-#define PLATE_H_SMALL 8
+// Plate disc classes (width x height), indexed by weight via plate_w()/plate_h().
+#define PLATE_W_BIG 18
+#define PLATE_H_BIG 28
+#define PLATE_W_MID 15
+#define PLATE_H_MID 20
+#define PLATE_W_SMALL 14
+#define PLATE_H_SMALL 18
+// Compact set for 5% step (7 rows): tighter discs so all rows fit the screen.
+#define PLATE_W_BIG_C 14
+#define PLATE_H_BIG_C 20
+#define PLATE_W_MID_C 12
+#define PLATE_H_MID_C 16
+#define PLATE_W_SMALL_C 11
+#define PLATE_H_SMALL_C 14
+#define PLATE_GAP 2
+#define PLATE_RADIUS 3
 #else
 #define HEADER_H 28
 #define ROW_H 24
@@ -82,10 +104,68 @@ static const int PERCENTS[NUM_ROWS] = {90, 80, 70, 60, 50};
 #define PLATE_H_BIG 14
 #define PLATE_H_MID 9
 #define PLATE_H_SMALL 6
+#define PLATE_GAP 1
+#define PLATE_RADIUS 1
 #endif
 
-// Per-plate glyph metrics: width in px, height class.
-static const int PLATE_PX_W[] = {7, 6, 5, 4, 3, 3, 2, 2};
+// Plate disc size by weight class. Large layouts draw fat labeled discs;
+// compact layouts keep the thin side-view bars (PLATE_PX_W).
+// ---------------------------------------------------------------------------
+// Runtime layout state (step selector, row count, results window geometry)
+// ---------------------------------------------------------------------------
+
+static int s_pct_step = PCT_STEP_DEFAULT;  // 5 or 10
+static int s_num_rows = 5;                 // 90..50 (10%) or 90..60 (5%)
+static int s_row_h;                        // computed at window load
+static Layer *s_root;                      // results root layer
+
+// Are we in the compact 5%-step layout (7 rows)? Large displays shrink the
+// discs so the taller row stack fits; small layouts keep the thin bars.
+#if LAYOUT_LARGE
+static bool compact_plates(void) { return s_num_rows > 5; }
+#endif
+
+static int plate_w(int i) {
+#if LAYOUT_LARGE
+  int u = PLATE_UNITS[i];
+  if (u >= 10) {
+    return compact_plates() ? PLATE_W_BIG_C : PLATE_W_BIG;
+  } else if (u >= 4) {
+    return compact_plates() ? PLATE_W_MID_C : PLATE_W_MID;
+  }
+  return compact_plates() ? PLATE_W_SMALL_C : PLATE_W_SMALL;
+#else
+  static const int PLATE_PX_W[] = {7, 6, 5, 4, 3, 3, 2, 2};
+  return PLATE_PX_W[i];
+#endif
+}
+
+static int plate_h(int i) {
+  int u = PLATE_UNITS[i];
+#if LAYOUT_LARGE
+  if (u >= 10) {
+    return compact_plates() ? PLATE_H_BIG_C : PLATE_H_BIG;
+  } else if (u >= 4) {
+    return compact_plates() ? PLATE_H_MID_C : PLATE_H_MID;
+  }
+  return compact_plates() ? PLATE_H_SMALL_C : PLATE_H_SMALL;
+#else
+  if (u >= 10) {
+    return PLATE_H_BIG;
+  } else if (u >= 4) {
+    return PLATE_H_MID;
+  }
+  return PLATE_H_SMALL;
+#endif
+}
+
+// Round displays cut the corners off: inset content from the screen edge so
+// the outermost columns stay inside the circular mask.
+#if defined(PBL_ROUND)
+#define EDGE_INSET 10
+#else
+#define EDGE_INSET 0
+#endif
 
 // Muted greys vanish or dither poorly on 1-bit displays; use white there.
 #if defined(PBL_COLOR)
@@ -103,9 +183,20 @@ static const int PLATE_PX_W[] = {7, 6, 5, 4, 3, 3, 2, 2};
 static Window *s_results_window;
 static Layer *s_glyph_layer;
 static TextLayer *s_title_layer;
-static TextLayer *s_pct_layers[NUM_ROWS];
-static TextLayer *s_weight_layers[NUM_ROWS];
+#if LAYOUT_LARGE
+static TextLayer *s_hint_layer;  // header hint line
+#endif
+static TextLayer *s_pct_layers[MAX_ROWS];
+static TextLayer *s_weight_layers[MAX_ROWS];
+#if !LAYOUT_LARGE
 static TextLayer *s_footer_layer;
+#endif
+
+// Rotated weight labels, one per plate size, pre-rendered resources
+// (large color layouts only; NULL elsewhere).
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+static GBitmap *s_label_bmps[PLATE_N];
+#endif
 
 static NumberWindow *s_number_window;
 
@@ -203,18 +294,10 @@ static GColor plate_color(int plate_index) {
 #endif
 }
 
-static void draw_plate(GContext *ctx, GRect zone, int plate_index, int16_t *x,
-                       bool *clipped) {
-  int w = PLATE_PX_W[plate_index];
-  int units = PLATE_UNITS[plate_index];
-  int h;
-  if (units >= 10) {
-    h = PLATE_H_BIG;
-  } else if (units >= 4) {
-    h = PLATE_H_MID;
-  } else {
-    h = PLATE_H_SMALL;
-  }
+static void draw_plate_rect(GContext *ctx, GRect zone, int plate_index,
+                            int16_t *x, bool *clipped) {
+  int w = plate_w(plate_index);
+  int h = plate_h(plate_index);
 
   if (*x - w < zone.origin.x) {
     *clipped = true;
@@ -226,33 +309,63 @@ static void draw_plate(GContext *ctx, GRect zone, int plate_index, int16_t *x,
   graphics_context_set_fill_color(ctx, color);
   graphics_context_set_stroke_color(ctx, color);
 
-  if (units >= 10) {
+#if LAYOUT_LARGE
+  // Large layouts: solid discs in every class so the labels stay readable.
+  graphics_fill_rect(ctx, r, PLATE_RADIUS, GCornersAll);
+#else
+  if (PLATE_UNITS[plate_index] >= 10) {
     // Solid plate with an outline to suggest thickness.
     graphics_fill_rect(ctx, r, 2, GCornersAll);
   } else {
     // Small plates are hollow so they stay readable at tiny sizes.
     graphics_draw_round_rect(ctx, r, 1);
   }
-  *x -= (w + 1);
+#endif
+  *x -= (w + PLATE_GAP);
 }
+
+// Composite the rotated weight label over a drawn plate. Large color only.
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+static void draw_plate_label(GContext *ctx, GRect zone, int plate_index,
+                             int16_t *x, bool *clipped) {
+  int w = plate_w(plate_index);
+  int h = plate_h(plate_index);
+  if (*x - w < zone.origin.x) {
+    *clipped = true;
+    return;
+  }
+  GRect r = GRect(*x - w, zone.origin.y + (zone.size.h - h) / 2, w, h);
+  if (s_label_bmps[plate_index] != NULL) {
+    GRect lb = gbitmap_get_bounds(s_label_bmps[plate_index]);
+    GRect lr = GRect(r.origin.x + (r.size.w - lb.size.w) / 2,
+                     r.origin.y + (r.size.h - lb.size.h) / 2,
+                     lb.size.w, lb.size.h);
+    graphics_context_set_compositing_mode(ctx, GCompOpSet);
+    graphics_draw_bitmap_in_rect(ctx, s_label_bmps[plate_index], lr);
+    graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+  }
+  *x -= (w + PLATE_GAP);
+}
+#endif  // PBL_COLOR && LAYOUT_LARGE
 
 static void glyph_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
-  int row_h = bounds.size.h / NUM_ROWS;
+  int row_h = bounds.size.h / s_num_rows;
 
-  for (int row = 0; row < NUM_ROWS; row++) {
+  for (int row = 0; row < s_num_rows; row++) {
     GRect zone = GRect(0, row * row_h, bounds.size.w, row_h);
 
     int counts[PLATE_N];
     int shown_lb;
-    calc_row(s_max_lb, PERCENTS[row], &shown_lb, counts);
+    calc_row(s_max_lb, 90 - row * s_pct_step, &shown_lb, counts);
 
-    // Plates are drawn right to left from the collar.
-    int16_t x = zone.origin.x + zone.size.w - 3;
+    // Plates hang from the collar at the right edge, heaviest innermost.
+    int16_t collar_x = zone.origin.x + zone.size.w - 3 - EDGE_INSET;
+    int16_t x = collar_x - PLATE_GAP;
     bool clipped = false;
     for (int i = 0; i < PLATE_N; i++) {
       for (int n = 0; n < counts[i]; n++) {
-        draw_plate(ctx, zone, i, &x, &clipped);
+        draw_plate_rect(ctx, zone, i, &x, &clipped);
         if (clipped) {
           break;
         }
@@ -261,6 +374,21 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
         break;
       }
     }
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+    // Labels walk the same geometry, over the rects.
+    x = collar_x - PLATE_GAP;
+    for (int i = 0; i < PLATE_N; i++) {
+      for (int n = 0; n < counts[i]; n++) {
+        draw_plate_label(ctx, zone, i, &x, &clipped);
+        if (clipped) {
+          break;
+        }
+      }
+      if (clipped) {
+        break;
+      }
+    }
+#endif
     if (clipped) {
       // Too many plates to render: indicate more off-screen to the left.
       graphics_context_set_stroke_color(ctx, GColorLightGray);
@@ -271,9 +399,8 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
     // Collar: vertical line at the right edge of the glyph zone.
     graphics_context_set_stroke_color(ctx, GColorDarkGray);
     graphics_draw_line(ctx,
-                       GPoint(zone.origin.x + zone.size.w - 1, zone.origin.y + 2),
-                       GPoint(zone.origin.x + zone.size.w - 1,
-                              zone.origin.y + zone.size.h - 3));
+                       GPoint(collar_x, zone.origin.y + 2),
+                       GPoint(collar_x, zone.origin.y + zone.size.h - 3));
   }
 }
 
@@ -282,13 +409,23 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
 // ---------------------------------------------------------------------------
 
 static void update_ui(void);  // forward decl (used by the count window below)
+static void rebuild_row_layers(void);  // forward decl (wizard step change)
 
 // ---------------------------------------------------------------------------
 // Plate-count settings window (number entry)
 // ---------------------------------------------------------------------------
 
 static void count_configure(NumberWindow *nw, int index) {
-  static char label[24];
+  static char label[40];
+  if (index == -1) {
+    // First wizard screen: percent step size (5 or 10).
+    number_window_set_label(nw, "Pct step");
+    number_window_set_min(nw, PCT_STEP_FINE);
+    number_window_set_max(nw, PCT_STEP_DEFAULT);
+    number_window_set_step_size(nw, 5);
+    number_window_set_value(nw, s_pct_step);
+    return;
+  }
   snprintf(label, sizeof(label), "# of %s lb plates",
            PLATE_LB_STRS[index]);
   number_window_set_label(nw, label);
@@ -296,28 +433,40 @@ static void count_configure(NumberWindow *nw, int index) {
   // unlimited) is directly selectable.
   number_window_set_min(nw, 1);
   number_window_set_max(nw, COUNT_UNLIMITED + 1);
+  number_window_set_step_size(nw, 1);
   number_window_set_value(nw, s_plate_counts[index] + 1);
 }
 
 static void count_selected_handler(struct NumberWindow *nw, void *context) {
-  s_plate_counts[s_count_index] =
-      (int8_t)number_window_get_value(nw) - 1;  // 1..11 -> 0..10
-  persist_write_data(PERSIST_KEY_SETTINGS, s_plate_counts,
-                     sizeof(s_plate_counts));
-  APP_LOG(APP_LOG_LEVEL_INFO, "plate[%s]=%d",
-          PLATE_LB_STRS[s_count_index], s_plate_counts[s_count_index]);
-  s_count_index++;
-  if (s_count_index < PLATE_N) {
-    count_configure(nw, s_count_index);  // next plate size, in place
-  } else {
+  if (s_count_index == -1) {
+    // Step size screen: 5 or 10, directly selectable.
+    int v = (int)number_window_get_value(nw);
+    s_pct_step = (v == PCT_STEP_FINE) ? PCT_STEP_FINE : PCT_STEP_DEFAULT;
+    persist_write_int(PERSIST_KEY_STEP, s_pct_step);
+    APP_LOG(APP_LOG_LEVEL_INFO, "pct step = %d", s_pct_step);
     s_count_index = 0;
-    window_stack_pop(true);  // wizard finished
+    count_configure(nw, 0);
+    rebuild_row_layers();  // row count / plate size changed underneath
+  } else {
+    s_plate_counts[s_count_index] =
+        (int8_t)number_window_get_value(nw) - 1;  // 1..11 -> 0..10
+    persist_write_data(PERSIST_KEY_SETTINGS, s_plate_counts,
+                       sizeof(s_plate_counts));
+    APP_LOG(APP_LOG_LEVEL_INFO, "plate[%s]=%d",
+            PLATE_LB_STRS[s_count_index], s_plate_counts[s_count_index]);
+    s_count_index++;
+    if (s_count_index < PLATE_N) {
+      count_configure(nw, s_count_index);  // next plate size, in place
+    } else {
+      s_count_index = -1;
+      window_stack_pop(true);  // wizard finished
+    }
   }
   update_ui();
 }
 
 static void open_count_window(void) {
-  s_count_index = 0;
+  s_count_index = -1;  // start on the step-size screen
   count_configure(s_count_window, s_count_index);
   window_stack_push(number_window_get_window(s_count_window), true);
 }
@@ -328,17 +477,23 @@ static void open_count_window(void) {
 
 static void update_ui(void) {
   static char title_buf[32];
-  static char weight_bufs[NUM_ROWS][8];
+  static char weight_bufs[MAX_ROWS][8];
 
-  snprintf(title_buf, sizeof(title_buf), "Max %d lb", s_max_lb);
+  if (s_pct_step == PCT_STEP_FINE) {
+    snprintf(title_buf, sizeof(title_buf), "Max %d lb (%d%%)",
+             s_max_lb, s_pct_step);
+  } else {
+    snprintf(title_buf, sizeof(title_buf), "Max %d lb", s_max_lb);
+  }
   text_layer_set_text(s_title_layer, title_buf);
 
-  char dbg[80];
-  int off = snprintf(dbg, sizeof(dbg), "UI max=%d w=", s_max_lb);
-  for (int row = 0; row < NUM_ROWS; row++) {
+  char dbg[96];
+  int off = snprintf(dbg, sizeof(dbg), "UI max=%d step=%d w=", s_max_lb,
+                     s_pct_step);
+  for (int row = 0; row < s_num_rows; row++) {
     int counts[PLATE_N];
     int shown_lb;
-    calc_row(s_max_lb, PERCENTS[row], &shown_lb, counts);
+    calc_row(s_max_lb, 90 - row * s_pct_step, &shown_lb, counts);
     snprintf(weight_bufs[row], sizeof(weight_bufs[row]), "%d", shown_lb);
     text_layer_set_text(s_weight_layers[row], weight_bufs[row]);
     if (off > 0 && off < (int)sizeof(dbg)) {
@@ -419,71 +574,197 @@ static TextLayer *make_text_layer(GRect frame, GFont font, GColor color,
   return layer;
 }
 
-static void results_window_load(Window *window) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "results window load");
-  Layer *root = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(root);
-  int w = bounds.size.w;
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+// Load the pre-rendered rotated weight labels, compact set when in 5% mode.
+static void load_labels(void) {
+  if (s_num_rows > 5) {
+    s_label_bmps[0] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_55C);
+    s_label_bmps[1] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_45C);
+    s_label_bmps[2] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_35C);
+    s_label_bmps[3] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_25C);
+    s_label_bmps[4] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_15C);
+    s_label_bmps[5] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_10C);
+    s_label_bmps[6] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_5C);
+    s_label_bmps[7] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_2P5C);
+  } else {
+    s_label_bmps[0] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_55);
+    s_label_bmps[1] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_45);
+    s_label_bmps[2] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_35);
+    s_label_bmps[3] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_25);
+    s_label_bmps[4] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_15);
+    s_label_bmps[5] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_10);
+    s_label_bmps[6] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_5);
+    s_label_bmps[7] = gbitmap_create_with_resource(RESOURCE_ID_LABEL_2P5);
+  }
+}
+#endif  // PBL_COLOR && LAYOUT_LARGE
 
-  window_set_background_color(window, GColorBlack);
-
-#if LAYOUT_LARGE
-  GRect header = GRect(0, 2, w, HEADER_H);
-#else
-  GRect header = GRect(0, 0, w, HEADER_H);
-#endif
-  s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
-                                  GColorOrange, GTextAlignmentCenter);
-
-  // Divider under the header.
-  s_glyph_layer = layer_create(GRect(0, TOP_Y, w, ROW_H * NUM_ROWS));
+// Create the glyph + per-row text layers for the current s_num_rows layout.
+static void create_row_layers(Layer *root, int w, int h) {
+  (void)root;
+  (void)h;
+  s_glyph_layer = layer_create(GRect(0, TOP_Y, w, s_row_h * s_num_rows));
   layer_set_update_proc(s_glyph_layer, glyph_update_proc);
 
-  for (int row = 0; row < NUM_ROWS; row++) {
-    GRect row_frame = GRect(0, TOP_Y + row * ROW_H, w, ROW_H);
-    GRect pct_frame = GRect(8, row_frame.origin.y, PCT_W, ROW_H);
-    GRect weight_frame = GRect(WEIGHT_X, row_frame.origin.y, WEIGHT_W, ROW_H);
+  static char pct_bufs[MAX_ROWS][16];
+  for (int row = 0; row < s_num_rows; row++) {
+    GRect row_frame = GRect(0, TOP_Y + row * s_row_h, w, s_row_h);
+#if LAYOUT_LARGE
+    GRect pct_frame = GRect(8 + EDGE_INSET,
+                            row_frame.origin.y + (s_row_h - 16) / 2,
+                            PCT_W, 16);
+#else
+    GRect pct_frame = GRect(8 + EDGE_INSET, row_frame.origin.y, PCT_W,
+                            s_row_h);
+#endif
+    GRect weight_frame = GRect(WEIGHT_X + EDGE_INSET, row_frame.origin.y,
+                               WEIGHT_W, s_row_h);
 
-    static char pct_bufs[NUM_ROWS][6];
-    snprintf(pct_bufs[row], sizeof(pct_bufs[row]), "%d%%", PERCENTS[row]);
+    // Percentages are always 2 digits (90..50).
+    snprintf(pct_bufs[row], sizeof(pct_bufs[row]), "%2d%%",
+             90 - row * s_pct_step);
 
     s_pct_layers[row] = make_text_layer(
         pct_frame, fonts_get_system_font(FONT_PCT), COLOR_PCT,
         GTextAlignmentLeft);
     text_layer_set_text(s_pct_layers[row], pct_bufs[row]);
 
+#if LAYOUT_LARGE
     s_weight_layers[row] = make_text_layer(
         weight_frame, fonts_get_system_font(FONT_WEIGHT), GColorWhite,
         GTextAlignmentLeft);
+#else
+    // 7 rows on a 168px display leaves ~16px rows: shrink the weight font.
+    GFont weight_font = fonts_get_system_font(
+        s_num_rows > 5 ? FONT_KEY_GOTHIC_14_BOLD : FONT_WEIGHT);
+    s_weight_layers[row] = make_text_layer(
+        weight_frame, weight_font, GColorWhite, GTextAlignmentLeft);
+#endif
   }
+}
 
-  GRect footer = GRect(0, bounds.size.h - 22, w, 20);
-  s_footer_layer = make_text_layer(footer, fonts_get_system_font(FONT_FOOTER),
-                                   COLOR_FOOTER, GTextAlignmentCenter);
-  text_layer_set_text(s_footer_layer,
-                      "UP/DN max  SEL menu  hold SEL plates");
+static void destroy_row_layers(void) {
+  for (int row = 0; row < s_num_rows; row++) {
+    text_layer_destroy(s_pct_layers[row]);
+    text_layer_destroy(s_weight_layers[row]);
+  }
+  layer_destroy(s_glyph_layer);
+  s_glyph_layer = NULL;
+}
 
-  // Add all layers before applying initial state (see pebble skill note).
+// Re-add every layer to the root in paint order. Used on load and after a
+// step change (the row layers are recreated; base layers persist).
+static void add_all_layers(Layer *root) {
   layer_add_child(root, text_layer_get_layer(s_title_layer));
+#if LAYOUT_LARGE
+  layer_add_child(root, text_layer_get_layer(s_hint_layer));
+#endif
   layer_add_child(root, s_glyph_layer);
-  for (int row = 0; row < NUM_ROWS; row++) {
+  for (int row = 0; row < s_num_rows; row++) {
     layer_add_child(root, text_layer_get_layer(s_pct_layers[row]));
     layer_add_child(root, text_layer_get_layer(s_weight_layers[row]));
   }
+#if !LAYOUT_LARGE
   layer_add_child(root, text_layer_get_layer(s_footer_layer));
+#endif
+}
 
+// Rebuild the row layers after the step size changed (called while the
+// settings wizard is stacked above the results window). Also swaps the
+// label set (regular <-> compact) to match the new row count.
+static void rebuild_row_layers(void) {
+  s_num_rows = (s_pct_step == PCT_STEP_FINE) ? 7 : 5;
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+  for (int i = 0; i < PLATE_N; i++) {
+    if (s_label_bmps[i] != NULL) {
+      gbitmap_destroy(s_label_bmps[i]);
+      s_label_bmps[i] = NULL;
+    }
+  }
+  load_labels();
+#endif
+  GRect b = layer_get_bounds(s_root);
+  layer_remove_child_layers(s_root);
+  destroy_row_layers();
+  int avail = b.size.h - TOP_Y;
+#if LAYOUT_LARGE
+  avail -= EDGE_INSET ? 28 : 4;
+#else
+  avail -= 20;  // footer
+#endif
+  s_row_h = avail / s_num_rows;
+  create_row_layers(s_root, b.size.w, b.size.h);
+  add_all_layers(s_root);
+}
+
+static void results_window_load(Window *window) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "results window load");
+  Layer *root = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(root);
+  int w = bounds.size.w;
+  int h = bounds.size.h;
+  s_root = root;
+
+  window_set_background_color(window, GColorBlack);
+
+  // Keep the backlight on while the results screen is foregrounded. The
+  // light snaps back to automatic control on unload/app exit.
+  light_enable(true);
+
+  s_num_rows = (s_pct_step == PCT_STEP_FINE) ? 7 : 5;
+
+#if LAYOUT_LARGE
+  // Rows fill everything below a two-line header. Round displays need a
+  // bottom margin so the last row stays inside the circular mask.
+  s_row_h = (h - TOP_Y - (EDGE_INSET ? 28 : 4)) / s_num_rows;
+  GRect header = GRect(0, 2, w, HEADER_H);
+  s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
+                                  GColorOrange, GTextAlignmentCenter);
+  GRect hint = GRect(0, HINT_Y, w, 18);
+  s_hint_layer = make_text_layer(hint, fonts_get_system_font(FONT_HINT),
+                                 COLOR_PCT, GTextAlignmentCenter);
+  text_layer_set_text(s_hint_layer, "per side  |  SEL: step/plates");
+#else
+  s_row_h = (h - TOP_Y - 20) / s_num_rows;
+  GRect header = GRect(0, 0, w, HEADER_H);
+  s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
+                                  GColorOrange, GTextAlignmentCenter);
+#endif
+
+#if !LAYOUT_LARGE
+  GRect footer = GRect(0, h - 22, w, 20);
+  s_footer_layer = make_text_layer(footer, fonts_get_system_font(FONT_FOOTER),
+                                   COLOR_FOOTER, GTextAlignmentCenter);
+  text_layer_set_text(s_footer_layer, "SEL: step/plates");
+#endif
+
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+  load_labels();
+#endif
+
+  create_row_layers(root, w, h);
+  add_all_layers(root);
   update_ui();
 }
 
 static void results_window_unload(Window *window) {
   APP_LOG(APP_LOG_LEVEL_INFO, "results window unload");
-  text_layer_destroy(s_title_layer);
-  text_layer_destroy(s_footer_layer);
-  for (int row = 0; row < NUM_ROWS; row++) {
-    text_layer_destroy(s_pct_layers[row]);
-    text_layer_destroy(s_weight_layers[row]);
+  light_enable(false);  // return backlight to automatic control
+#if defined(PBL_COLOR) && LAYOUT_LARGE
+  for (int i = 0; i < PLATE_N; i++) {
+    if (s_label_bmps[i] != NULL) {
+      gbitmap_destroy(s_label_bmps[i]);
+      s_label_bmps[i] = NULL;
+    }
   }
-  layer_destroy(s_glyph_layer);
+#endif
+  destroy_row_layers();
+  text_layer_destroy(s_title_layer);
+#if LAYOUT_LARGE
+  text_layer_destroy(s_hint_layer);
+#else
+  text_layer_destroy(s_footer_layer);
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -492,6 +773,12 @@ static void results_window_unload(Window *window) {
 
 static void init(void) {
   APP_LOG(APP_LOG_LEVEL_INFO, "init begin");
+  if (persist_exists(PERSIST_KEY_STEP)) {
+    int step = persist_read_int(PERSIST_KEY_STEP);
+    if (step == PCT_STEP_FINE || step == PCT_STEP_DEFAULT) {
+      s_pct_step = step;
+    }
+  }
   if (persist_exists(PERSIST_KEY_MAX)) {
     int stored = persist_read_int(PERSIST_KEY_MAX);
     if (stored >= BAR_LB && stored <= MAX_LB_LIMIT) {
