@@ -282,13 +282,17 @@ static void calc_row(int max_lb, int pct, int *shown_lb_out, int *counts_out) {
 
 static GColor plate_color(int plate_index) {
 #if defined(PBL_COLOR)
-  // Color-code by weight class: heavy = orange, mid = white, light = grey.
-  if (PLATE_UNITS[plate_index] >= 14) {
-    return GColorOrange;
-  } else if (PLATE_UNITS[plate_index] >= 4) {
-    return GColorWhite;
+  // Gym-standard color per plate size: red/blue/yellow/green/pink/white/cyan.
+  switch (PLATE_UNITS[plate_index]) {
+    case 22: return GColorRed;        // 55
+    case 18: return GColorBlue;       // 45
+    case 14: return GColorYellow;     // 35
+    case 10: return GColorGreen;      // 25
+    case 6:  return GColorShockingPink;  // 15
+    case 4:  return GColorWhite;      // 10
+    case 2:  return GColorCyan;       // 5
+    default: return GColorLightGray;  // 2.5
   }
-  return GColorLightGray;
 #else
   return GColorWhite;
 #endif
@@ -517,6 +521,7 @@ static void number_selected_handler(struct NumberWindow *nw, void *context) {
   }
   persist_write_int(PERSIST_KEY_MAX, s_max_lb);
   update_ui();
+  window_stack_pop(true);  // back to the percentage screen
 }
 
 static void open_number_window(void) {
