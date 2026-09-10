@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Generate rotated plate-label PNGs for pl8s.
+"""Generate horizontal plate-label PNGs for pl8s.
 
-Each label is the plate weight rendered vertically (rotated so it reads
-bottom-to-top along the plate face), on a transparent background, in a
-contrasting color for its plate class:
+Each label is the plate weight rendered horizontally in bold on a
+transparent background, in a contrasting color for its plate class:
 
-  big plates (55/45/35, orange fill)  -> white text
-  mid  plates (25/15/10, white fill)  -> black text
-  small plates (5/2.5, light-grey fill) -> black text
+  big plates (55/45/35, red/blue/yellow fill) -> white text (black on 35)
+  mid  plates (25/15/10, green/pink/white fill) -> black text
+  small plates (5/2.5, cyan/light-grey fill) -> black text
 
 The PNGs are baked into the app as resources (see package.json "media")
 and composited over the drawn plate rectangles at runtime with GCompOpSet
@@ -34,28 +33,30 @@ FONT_CANDIDATES = [
 ]
 
 # weight -> (font_size_pt, text_color, plate_w, plate_h)
+# Plates are drawn from the side: "thickness" is the horizontal size, so
+# labels sit horizontally on a wide face for maximum legibility.
 SPECS = {
-    "55": (14, (255, 255, 255, 255), 18, 28),
-    "45": (14, (255, 255, 255, 255), 18, 28),
-    "35": (14, (0, 0, 0, 255), 18, 28),
-    "25": (10, (0, 0, 0, 255), 15, 20),
-    "15": (10, (0, 0, 0, 255), 15, 20),
-    "10": (10, (0, 0, 0, 255), 15, 20),
-    "5": (9, (0, 0, 0, 255), 14, 18),
-    "2.5": (8, (0, 0, 0, 255), 14, 18),
+    "55": (15, (255, 255, 255, 255), 26, 22),
+    "45": (15, (255, 255, 255, 255), 26, 22),
+    "35": (15, (0, 0, 0, 255), 26, 22),
+    "25": (11, (0, 0, 0, 255), 20, 18),
+    "15": (11, (0, 0, 0, 255), 20, 18),
+    "10": (11, (0, 0, 0, 255), 20, 18),
+    "5": (9, (0, 0, 0, 255), 17, 15),
+    "2.5": (9, (0, 0, 0, 255), 17, 15),
 }
 
-# Compact set for 5% step (7 rows on large displays): smaller discs so the
-# taller row stack fits the screen. Emitted with a "c" suffix.
+# Compact set for 5% step (7 rows on large displays): smaller horizontal
+# labels so the taller row stack fits the screen. Emitted with "c" suffix.
 SPECS_COMPACT = {
-    "55": (9, (255, 255, 255, 255), 14, 20),
-    "45": (9, (255, 255, 255, 255), 14, 20),
-    "35": (9, (0, 0, 0, 255), 14, 20),
-    "25": (7, (0, 0, 0, 255), 12, 16),
-    "15": (7, (0, 0, 0, 255), 12, 16),
-    "10": (7, (0, 0, 0, 255), 12, 16),
-    "5": (6, (0, 0, 0, 255), 11, 14),
-    "2.5": (5, (0, 0, 0, 255), 11, 14),
+    "55": (11, (255, 255, 255, 255), 21, 18),
+    "45": (11, (255, 255, 255, 255), 21, 18),
+    "35": (11, (0, 0, 0, 255), 21, 18),
+    "25": (9, (0, 0, 0, 255), 17, 15),
+    "15": (9, (0, 0, 0, 255), 17, 15),
+    "10": (9, (0, 0, 0, 255), 17, 15),
+    "5": (8, (0, 0, 0, 255), 15, 13),
+    "2.5": (8, (0, 0, 0, 255), 15, 13),
 }
 
 
@@ -67,10 +68,10 @@ def load_font():
 
 
 def make_label(lbs, size_pt, color, plate_w, plate_h, font_path):
-    """Rendered label: weight rotated -90 (reads bottom-to-top), centered in
-    an image of exactly (plate_w x plate_h) pixels with transparent padding."""
+    """Rendered label: horizontal bold text, centered in an image of exactly
+    (plate_w x plate_h) pixels with transparent padding."""
     font = ImageFont.truetype(font_path, size_pt)
-    # shrink the font until the rotated text fits the plate with a 1px margin
+    # shrink the font until the text fits the plate with a 1px margin
     while size_pt > 1:
         tw, th = font.getbbox(lbs)[2:4]
         resized = tw <= plate_w - 2 and th <= plate_h - 2
@@ -81,14 +82,10 @@ def make_label(lbs, size_pt, color, plate_w, plate_h, font_path):
     if not resized:
         raise SystemExit(f"label {lbs!r} too wide even at 1pt for {plate_w}x{plate_h}")
 
-    horizontal = Image.new("RGBA", (tw + 2, th + 2), (0, 0, 0, 0))
-    ImageDraw.Draw(horizontal).text((1, 1), lbs, font=font, fill=color)
-    rotated = horizontal.rotate(-90, expand=True, resample=Image.BICUBIC)
-
     out = Image.new("RGBA", (plate_w, plate_h), (0, 0, 0, 0))
-    x = (plate_w - rotated.size[0]) // 2
-    y = (plate_h - rotated.size[1]) // 2
-    out.paste(rotated, (x, y), rotated)
+    x = (plate_w - tw) // 2
+    y = (plate_h - th) // 2
+    ImageDraw.Draw(out).text((x, y), lbs, font=font, fill=color)
     return out
 
 
