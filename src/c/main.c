@@ -5,8 +5,8 @@
  * Enter your max for an exercise, and the app shows descending
  * percentages (90/80/70/60/50 or 90..60 in 5% steps) with the weight to
  * load and a glyph of the plates needed per side. Large color displays
- * (emery/gabbro) draw each plate as a fat disc with its weight printed
- * vertically on the face; the backlight stays on while the app is
+ * (emery/gabbro) draw each plate as a thick disc with its weight printed
+ * horizontally on the face; the backlight stays on while the app is
  * foregrounded. Settings can be changed on the watch (hold SEL) or from
  * the phone app's config page (src/pkjs/index.js + config.html).
  *
@@ -78,19 +78,21 @@ static const char *const PLATE_LB_STRS[] = {"55", "45", "35", "25",
 #define FONT_PCT FONT_KEY_GOTHIC_14_BOLD
 #define FONT_WEIGHT FONT_KEY_GOTHIC_24_BOLD
 // Plate disc classes (width x height), indexed by weight via plate_w()/plate_h().
-#define PLATE_W_BIG 18
-#define PLATE_H_BIG 28
-#define PLATE_W_MID 15
-#define PLATE_H_MID 20
-#define PLATE_W_SMALL 14
-#define PLATE_H_SMALL 18
-// Compact set for 5% step (7 rows): tighter discs so all rows fit the screen.
-#define PLATE_W_BIG_C 14
-#define PLATE_H_BIG_C 20
-#define PLATE_W_MID_C 12
-#define PLATE_H_MID_C 16
-#define PLATE_W_SMALL_C 11
-#define PLATE_H_SMALL_C 14
+// Width is the side-view "thickness"; faces are wide enough for the
+// horizontal weight labels.
+#define PLATE_W_BIG 26
+#define PLATE_H_BIG 22
+#define PLATE_W_MID 20
+#define PLATE_H_MID 18
+#define PLATE_W_SMALL 17
+#define PLATE_H_SMALL 15
+// Compact set for 5% step (7 rows): tighter plates so all rows fit.
+#define PLATE_W_BIG_C 21
+#define PLATE_H_BIG_C 18
+#define PLATE_W_MID_C 17
+#define PLATE_H_MID_C 15
+#define PLATE_W_SMALL_C 15
+#define PLATE_H_SMALL_C 13
 #define PLATE_GAP 2
 #define PLATE_RADIUS 3
 #else
@@ -331,7 +333,7 @@ static void draw_plate_rect(GContext *ctx, GRect zone, int plate_index,
   *x -= (w + PLATE_GAP);
 }
 
-// Composite the rotated weight label over a drawn plate. Large color only.
+// Composite the horizontal weight label over a drawn plate. Large color only.
 #if defined(PBL_COLOR) && LAYOUT_LARGE
 static void draw_plate_label(GContext *ctx, GRect zone, int plate_index,
                              int16_t *x, bool *clipped) {
@@ -578,7 +580,7 @@ static TextLayer *make_text_layer(GRect frame, GFont font, GColor color,
 }
 
 #if defined(PBL_COLOR) && LAYOUT_LARGE
-// Load the pre-rendered rotated weight labels, compact set when in 5% mode.
+// Load the pre-rendered horizontal weight labels, compact set when in 5% mode.
 static void load_labels(void) {
   static const uint32_t ids[2][PLATE_N] = {
     {RESOURCE_ID_LABEL_55, RESOURCE_ID_LABEL_45, RESOURCE_ID_LABEL_35,
