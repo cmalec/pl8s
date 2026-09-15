@@ -18,18 +18,11 @@
 
 #include <pebble.h>
 
+#include "plate_math.h"
+
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
-
-#define BAR_LB 45
-
-// Plate weights in 2.5 lb units (55 lb = 22 units), heaviest first.
-#define PLATE_N 8
-static const int PLATE_UNITS[PLATE_N] = {22, 18, 14, 10, 6, 4, 2, 1};
-// Human-readable plate sizes, same order as PLATE_UNITS.
-static const char *const PLATE_LB_STRS[] = {"55", "45", "35", "25",
-                                            "15", "10", "5",  "2.5"};
 
 // Percentage rows: 10% step shows 90..50 (5 rows), 5% step 90..60 (7 rows).
 // The step is user-selectable in the settings wizard and persisted.
@@ -41,18 +34,8 @@ static const char *const PLATE_LB_STRS[] = {"55", "45", "35", "25",
 #define PERSIST_KEY_SETTINGS 2
 #define PERSIST_KEY_STEP 3
 #define DEFAULT_MAX_LB 225
-// UI cap for the exercise max. With unlimited plates every 2.5 lb step up to
-// this max is loadable; with a limited inventory the math snaps down to the
-// heaviest achievable weight below each target.
-#define MAX_LB_LIMIT 995
-// Per-side load cap in 2.5 lb units for the exact-fit search: (995 * 0.9
-// - 45) / 2 / 2.5 = 170 units at the heaviest row, with margin.
-#define MAX_SIDE_UNITS 180
 #define NUDGE_LB 5
 
-// Plate inventory: per-size count 0..COUNT_UNLIMITED. COUNT_UNLIMITED means
-// "unlimited" (the default; glyph overflow is indicated by a clip marker).
-#define COUNT_UNLIMITED 10
 #define COUNT_DEFAULT COUNT_UNLIMITED
 
 // ---------------------------------------------------------------------------
@@ -208,11 +191,12 @@ static NumberWindow *s_number_window;
 static int s_max_lb = DEFAULT_MAX_LB;
 
 // Per-side plate inventory, indexed like PLATE_UNITS. COUNT_UNLIMITED means
-// unlimited plates of that size.
-static int8_t s_plate_counts[PLATE_N] = {COUNT_DEFAULT, COUNT_DEFAULT,
-                                         COUNT_DEFAULT, COUNT_DEFAULT,
-                                         COUNT_DEFAULT, COUNT_DEFAULT,
-                                         COUNT_DEFAULT, COUNT_DEFAULT};
+// unlimited plates of that size. Persisted as a raw blob: changing the
+// element type needs the read-back size check in init().
+static int s_plate_counts[PLATE_N] = {COUNT_DEFAULT, COUNT_DEFAULT,
+                                      COUNT_DEFAULT, COUNT_DEFAULT,
+                                      COUNT_DEFAULT, COUNT_DEFAULT,
+                                      COUNT_DEFAULT, COUNT_DEFAULT};
 
 // ---------------------------------------------------------------------------
 // Plate-count settings window (number entry)
@@ -220,66 +204,6 @@ static int8_t s_plate_counts[PLATE_N] = {COUNT_DEFAULT, COUNT_DEFAULT,
 
 static NumberWindow *s_count_window;
 static int s_count_index;  // which plate size is being edited
-
-// ---------------------------------------------------------------------------
-// Plate math
-// ---------------------------------------------------------------------------
-
-/**
- * Greedy-fill one per-side target (2.5 lb units) from the inventory.
- * @return true if the target was hit exactly, false if plates ran out
- */
-static bool try_load(int units, int *counts_out) {
-  int remaining = units;
-  for (int i = 0; i < PLATE_N; i++) {
-    int limit = (s_plate_counts[i] >= COUNT_UNLIMITED)
-                    ? remaining / PLATE_UNITS[i] + 1  // enough to not bind
-                    : s_plate_counts[i];
-    int n = remaining / PLATE_UNITS[i];
-    if (n > limit) {
-      n = limit;
-    }
-    counts_out[i] = n;
-    remaining -= n * PLATE_UNITS[i];
-  }
-  return remaining == 0;
-}
-
-/**
- * Compute the displayed load for one percentage row.
- *
- * The per-side target (max_lb * pct - bar) / 2 is rounded to the nearest
- * 2.5 lb step; with a complete inventory every step is loadable. If the
- * inventory cannot build it exactly, the weight snaps DOWN to the heaviest
- * buildable weight, so every displayed weight is always loadable.
- *
- * @param max_lb the exercise max
- * @param pct the percentage (e.g. 90)
- * @param shown_lb_out receives the exact loadable total weight
- * @param counts_out receives per-side plate counts indexed like PLATE_UNITS
- */
-static void calc_row(int max_lb, int pct, int *shown_lb_out, int *counts_out) {
-  // Target in half-pounds (exact for .5 totals): max_lb * pct * 2 / 100.
-  int target_half = max_lb * pct * 2 / 100;
-  // Per-side target in 2.5 lb units (10 half-pounds each), rounded nearest.
-  int target_units = (target_half - BAR_LB * 2 + 5) / 10;
-  if (target_units > MAX_SIDE_UNITS) {
-    target_units = MAX_SIDE_UNITS;
-  }
-  if (target_units < 0) {
-    target_units = 0;
-  }
-
-  if (!try_load(target_units, counts_out)) {
-    // Snap down one 2.5 lb step at a time until buildable (try_load(0)
-    // always succeeds, so this terminates).
-    while (target_units > 0 && !try_load(target_units, counts_out)) {
-      target_units--;
-    }
-  }
-
-  *shown_lb_out = BAR_LB + target_units * 5;
-}
 
 // ---------------------------------------------------------------------------
 // Drawing
@@ -366,7 +290,8 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
 
     int counts[PLATE_N];
     int shown_lb;
-    calc_row(s_max_lb, 90 - row * s_pct_step, &shown_lb, counts);
+    plate_math_calc_row(s_plate_counts, s_max_lb, 90 - row * s_pct_step,
+                        &shown_lb, counts);
 
     // Plates hang from the collar at the right edge, heaviest innermost.
     int16_t collar_x = zone.origin.x + zone.size.w - 3 - EDGE_INSET;
@@ -459,7 +384,7 @@ static void count_selected_handler(struct NumberWindow *nw, void *context) {
     rebuild_row_layers();  // row count / plate size changed underneath
   } else {
     s_plate_counts[s_count_index] =
-        (int8_t)number_window_get_value(nw) - 1;  // 1..11 -> 0..10
+        (int)number_window_get_value(nw) - 1;  // 1..11 -> 0..10
     persist_write_data(PERSIST_KEY_SETTINGS, s_plate_counts,
                        sizeof(s_plate_counts));
     APP_LOG(APP_LOG_LEVEL_INFO, "plate[%s]=%d",
@@ -501,7 +426,8 @@ static void update_ui(void) {
   for (int row = 0; row < s_num_rows; row++) {
     int counts[PLATE_N];
     int shown_lb;
-    calc_row(s_max_lb, 90 - row * s_pct_step, &shown_lb, counts);
+    plate_math_calc_row(s_plate_counts, s_max_lb, 90 - row * s_pct_step,
+                        &shown_lb, counts);
     snprintf(weight_bufs[row], sizeof(weight_bufs[row]), "%d", shown_lb);
     text_layer_set_text(s_weight_layers[row], weight_bufs[row]);
   }
@@ -837,7 +763,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
         v = COUNT_UNLIMITED;
       }
       if (v != s_plate_counts[i]) {
-        s_plate_counts[i] = (int8_t)v;
+        s_plate_counts[i] = v;
         state_changed = true;
       }
       APP_LOG(APP_LOG_LEVEL_INFO, "msg: plate[%d]=%d", i, v);
@@ -873,11 +799,14 @@ static void init(void) {
     }
   }
   if (persist_exists(PERSIST_KEY_SETTINGS)) {
-    persist_read_data(PERSIST_KEY_SETTINGS, s_plate_counts,
-                      sizeof(s_plate_counts));
+    int bytes = persist_read_data(PERSIST_KEY_SETTINGS, s_plate_counts,
+                                  sizeof(s_plate_counts));
     for (int i = 0; i < PLATE_N; i++) {
-      if (s_plate_counts[i] < 0 || s_plate_counts[i] > COUNT_UNLIMITED) {
-        s_plate_counts[i] = COUNT_DEFAULT;  // corrupt/foreign blob: reset
+      // Stale blob from a build with a different inventory type, or a
+      // corrupt/foreign count: reset that size to the default.
+      if (bytes != (int)sizeof(s_plate_counts) || s_plate_counts[i] < 0 ||
+          s_plate_counts[i] > COUNT_UNLIMITED) {
+        s_plate_counts[i] = COUNT_DEFAULT;
       }
     }
   }
