@@ -61,13 +61,17 @@ pebble login
 pebble build                          # build for all targetPlatforms
 pebble install --emulator emery       # install on the emery emulator
 pebble install --cloudpebble          # install to a paired phone
+npm test                              # host unit test of the plate math
+npm run test:emulator                 # drive the wizard on the emulator
 ```
 
-Testing phone-side pushes from the emulator:
+Testing phone-side pushes from the emulator. `--int` takes the numeric message
+keys the SDK assigns, listed in `build/js/message_keys.json` after a build, and
+all pairs go after one `--int`:
 
 ```sh
-pebble send-app-message --int STEP=5 --emulator emery
-pebble send-app-message --int MAX_LB=315 --int PLATE_2P5=3 --emulator emery
+pebble send-app-message --emulator emery --int 10000=5            # STEP
+pebble send-app-message --emulator emery --int 10001=315 10009=3  # MAX_LB, PLATE_2P5
 ```
 
 ## Target platforms
@@ -77,22 +81,42 @@ Built for **emery** (Pebble Time 2) first, with layout adaptations for the small
 ## Project layout
 
 ```
-src/c/           C source for the watchapp
+src/c/           C source for the watchapp (plate_math.c is SDK-free: math only)
 src/pkjs/        Phone-side JavaScript (config page bridge)
 config.html      Self-contained phone settings page (host it on GitHub Pages)
-tools/           Math verification + emulator test scripts (Python)
+tools/           Host unit test (C), emulator test + screenshot OCR (Python)
 resources/       Images, fonts, and other bundled resources
 package.json     Project metadata (UUID, platforms, resources, message keys)
 wscript          Build rules - usually no need to edit
 ```
 
-## Verifying the math
+## Testing
 
-`tools/verify_math.py` mirrors the C plate math and exhaustively checks that every displayed weight is exactly loadable across inventories and maxima (both 10% and 5% step modes):
+The plate math is plain C with no Pebble SDK dependency, so it is unit tested
+on the host against the same source the watchapp links:
 
 ```sh
-python3 tools/verify_math.py
+npm test
 ```
+
+`tools/test_plate_math.c` compares every row against an independent oracle (a
+memoized exhaustive search over plate multisets, deliberately a different
+algorithm from the app's reachable-load bitset) across the whole max range,
+both step modes, curated and random limited inventories, and every inventory
+with 0..2 of each size. It also pins the plates the glyph draws, and the rows
+that a limited inventory has to snap down.
+
+The app itself only really runs on the watch, so the wizard, persistence and
+rendering are checked on the emulator:
+
+```sh
+pebble build
+npm run test:emulator
+```
+
+That restarts the emery emulator, drives the settings wizard with button
+presses and reads the weights back off the screen with `tools/ocr_weights.py`,
+so a wrong weight fails the run instead of just changing the picture.
 
 ## Documentation
 

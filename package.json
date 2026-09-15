@@ -5,6 +5,10 @@
   "keywords": ["pebble-app", "fitness", "barbell", "plates"],
   "private": true,
   "dependencies": {},
+  "scripts": {
+    "test": "mkdir -p build && cc -O2 -std=c99 -Wall -Wextra -Isrc/c -o build/test_plate_math tools/test_plate_math.c src/c/plate_math.c && ./build/test_plate_math",
+    "test:emulator": "python3 tools/wizard_test.py"
+  },
   "pebble": {
     "displayName": "pl8s",
     "shortName": "pl8s",
