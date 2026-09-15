@@ -3,7 +3,7 @@
  *
  * Pure integer arithmetic with no Pebble SDK dependency, so this source
  * builds both into the watchapp and into the host unit test
- * (tools/test_plate_math.c), which pins the behavior down.
+ * (test/test_plate_math.c), which pins the behavior down.
  */
 #pragma once
 

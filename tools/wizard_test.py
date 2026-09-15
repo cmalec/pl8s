@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Drive the plate-count wizard on the emery emulator and check what it shows.
 
-The host unit test (tools/test_plate_math.c) covers the plate math; the
+The host unit test (test/test_plate_math.c) covers the plate math; the
 emulator is the only place the real app runs, so this covers the wizard, the
 persistence and the rendering. Assertions are on the weights the screen shows,
 read back with tools/ocr_weights.py -- not just on "the frame changed".

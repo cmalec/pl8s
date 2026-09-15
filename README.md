@@ -84,7 +84,8 @@ Built for **emery** (Pebble Time 2) first, with layout adaptations for the small
 src/c/           C source for the watchapp (plate_math.c is SDK-free: math only)
 src/pkjs/        Phone-side JavaScript (config page bridge)
 config.html      Self-contained phone settings page (host it on GitHub Pages)
-tools/           Host unit test (C), emulator test + screenshot OCR (Python)
+test/            Host unit tests (C), run by npm test
+tools/           Emulator test, screenshot OCR, asset generators (Python)
 resources/       Images, fonts, and other bundled resources
 package.json     Project metadata (UUID, platforms, resources, message keys)
 wscript          Build rules - usually no need to edit
@@ -99,7 +100,7 @@ on the host against the same source the watchapp links:
 npm test
 ```
 
-`tools/test_plate_math.c` compares every row against an independent oracle (a
+`test/test_plate_math.c` compares every row against an independent oracle (a
 memoized exhaustive search over plate multisets, deliberately a different
 algorithm from the app's reachable-load bitset) across the whole max range,
 both step modes, curated and random limited inventories, and every inventory
