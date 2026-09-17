@@ -34,8 +34,26 @@ ROUND = ("chalk", "gabbro")
 
 
 # Plate stacks per side, outermost first (the last plate loaded), as the app
-# colours them: a 25, a 45 and a 55.
-STACK = ((GREEN, 60, 11), (BLUE, 78, 13), (RED, 90, 13))
+# colours them: a 25, a 45 and a 55. Fill is a gradient id, so the plates
+# catch the light the way the bar does instead of reading as flat stickers.
+STACK = (("p_green", 60, 11), ("p_blue", 78, 13), ("p_red", 90, 13))
+
+# Slightly lighter at the top, darker at the bottom, like the steel bar.
+PLATE_SHADES = (("p_red", RED, "#ff6f6a", "#9d1f1c"),
+                ("p_blue", BLUE, "#5b9cf0", "#124a94"),
+                ("p_green", GREEN, "#6fc172", "#256b29"))
+
+
+def plate_defs():
+    """Gradients for the plate faces; shared by the icon and the banners."""
+    out = ["<defs>"]
+    for name, base, light, dark in PLATE_SHADES:
+        out.append(f'<linearGradient id="{name}" x1="0" y1="0" x2="0" y2="1">'
+                   f'<stop offset="0" stop-color="{light}"/>'
+                   f'<stop offset="0.55" stop-color="{base}"/>'
+                   f'<stop offset="1" stop-color="{dark}"/></linearGradient>')
+    out.append("</defs>")
+    return "".join(out)
 
 
 def plates_svg(cx, cy, bar_half, gap, sleeve):
@@ -43,11 +61,11 @@ def plates_svg(cx, cy, bar_half, gap, sleeve):
     out = []
     for sign in (1, -1):
         edge = cx + (bar_half - sleeve) * sign  # outer edge of the stack
-        for color, height, width in STACK:
+        for fill, height, width in STACK:
             x = edge - width if sign > 0 else edge
             out.append(f'<rect x="{x}" y="{cy - height / 2}" width="{width}" '
-                       f'height="{height}" rx="3" fill="{color}" '
-                       f'stroke="#00000033" stroke-width="1"/>')
+                       f'height="{height}" rx="3" fill="url(#{fill})" '
+                       f'stroke="#00000040" stroke-width="1"/>')
             edge -= (width + gap) * sign
     return "".join(out)
 
@@ -56,11 +74,11 @@ def barbell_svg(detail):
     """The barbell mark, drawn in a 144x144 space around the centre."""
     bar_h = 13 if detail == "small" else 11
     gap = 1 if detail == "small" else 2
-    sleeve = 0 if detail == "small" else 4
+    sleeve = 0 if detail == "small" else 3
     bar_half = 58 if detail == "small" else 57
     bar = (f'<rect x="{72 - bar_half}" y="{72 - bar_h / 2}" width="{bar_half * 2}" '
            f'height="{bar_h}" rx="{bar_h / 2}" fill="url(#steel)"/>')
-    return bar + plates_svg(72, 72, bar_half, gap, sleeve)
+    return plate_defs() + bar + plates_svg(72, 72, bar_half, gap, sleeve)
 
 
 def icon_svg(detail):
