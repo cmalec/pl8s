@@ -16,9 +16,11 @@ extern const int PLATE_UNITS[PLATE_N];
 // Human-readable plate sizes, same order as PLATE_UNITS.
 extern const char *const PLATE_LB_STRS[PLATE_N];
 
-// Per-size plate inventory, 0..COUNT_UNLIMITED. COUNT_UNLIMITED means
-// "unlimited" (the default; glyph overflow is indicated by a clip marker).
-#define COUNT_UNLIMITED 10
+// Per-size plate inventory: a literal count 0..COUNT_MAX_LITERAL, or
+// COUNT_UNLIMITED for a size the gym never runs out of (the default; glyph
+// overflow is indicated by a clip marker).
+#define COUNT_MAX_LITERAL 10
+#define COUNT_UNLIMITED 99
 
 // UI cap for the exercise max. With unlimited plates every 2.5 lb step up to
 // this max is loadable; with a limited inventory the math snaps down to the

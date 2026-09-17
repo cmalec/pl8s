@@ -335,8 +335,8 @@ static void check_random_inventories(void) {
   for (int trial = 0; trial < 400; trial++) {
     int counts[PLATE_N];
     for (int i = 0; i < PLATE_N; i++) {
-      int v = rnd(12);  // 0..9 counts, 10+ means unlimited
-      counts[i] = v > COUNT_UNLIMITED ? COUNT_UNLIMITED : v;
+      int v = rnd(13);  // 0..10 literal counts, 11+ means unlimited
+      counts[i] = v > COUNT_MAX_LITERAL ? COUNT_UNLIMITED : v;
     }
     oracle_reset();
     for (int m = 0; m < N_SAMPLE_MAX; m++) {
@@ -345,7 +345,7 @@ static void check_random_inventories(void) {
       }
     }
   }
-  printf("%-42s %s (400 inventories)\n", "random inventories 0..9",
+  printf("%-42s %s (400 inventories)\n", "random inventories 0..10 + unlimited",
          failures == before ? "ok" : "FAILED");
 }
 

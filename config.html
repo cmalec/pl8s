@@ -92,7 +92,7 @@
   <section>
     <h2>Plates per side</h2>
     <div id="plates"></div>
-    <div class="hint">How many of each plate the gym has. 10 = unlimited (the default).</div>
+    <div class="hint">How many of each plate the gym has: 0-10 per side, or 99 for unlimited (the default).</div>
   </section>
 
   <div class="buttons">
@@ -101,7 +101,7 @@
   </div>
 
 <script>
-  // Size, color, count (0..10; 10 = unlimited).
+  // Size, color, count (0..10 per side, 99 = unlimited).
   var PLATES = [
     { lb: '55',  color: '#e53935' },
     { lb: '45',  color: '#1e6fd9' },
@@ -154,12 +154,12 @@
       name.textContent = p.lb + ' lb';
 
       var key = 'p' + p.lb.replace('.', 'p');
-      var count = q[key] !== undefined ? num(q[key], 10) : 10;
+      var count = q[key] !== undefined ? num(q[key], 99) : 99;
 
       var input = document.createElement('input');
       input.type = 'number';
       input.min = 0;
-      input.max = 10;
+      input.max = 99;
       input.step = 1;
       input.value = count;
       input.dataset.lb = p.lb;
@@ -182,8 +182,10 @@
     var inputs = document.querySelectorAll('#plates input');
     for (var i = 0; i < inputs.length; i++) {
       var v = parseInt(inputs[i].value, 10);
+      // Literal counts are 0-10 per side; 99 is the unlimited sentinel.
       if (isNaN(v) || v < 0) { v = 0; }
-      if (v > 10) { v = 10; }
+      else if (v > 10 && v < 99) { v = 10; }
+      else if (v > 99) { v = 99; }
       plates[inputs[i].dataset.lb] = v;
     }
     closeWith({ step: step, max: max, plates: plates });

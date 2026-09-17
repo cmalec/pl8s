@@ -11,6 +11,7 @@ Needs the Pebble SDK and a build (`pebble build`). Run with
 running, so the app starts from a clean state.
 """
 import json
+import os
 import subprocess
 import sys
 import time
@@ -23,7 +24,7 @@ EMULATOR = "emery"
 SHOTS = "shots/wiz"
 PLATE_KEYS = ("PLATE_55", "PLATE_45", "PLATE_35", "PLATE_25", "PLATE_15",
               "PLATE_10", "PLATE_5", "PLATE_2P5")
-UNLIMITED = 10
+UNLIMITED = 99  # the settings sentinel for "as many as the gym has"
 
 # What the app shows with every size unlimited: the plain nearest-2.5 lb
 # rounding of each percentage, per (max, rows). These are also the frames the
@@ -64,6 +65,7 @@ def hold_select():
 
 def shot(name):
     path = f"{SHOTS}_{name}.png"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     result = pebble("screenshot", "--no-open", path, timeout=90)
     check("Saved" in result.stdout + result.stderr, f"screenshot {path}")
     return path
@@ -181,8 +183,14 @@ def main():
 
     for step in range(8):  # step size + the 55..5 lb plate screens
         signature = clicks_until_change("select", signature, f"c{step}")[0]
+        if step == 0:
+            # The 55 lb screen opens on the sentinel: one DOWN lands on the
+            # largest literal count and one UP is back, so 11..98 never show.
+            literals = clicks_until_change("down", signature, "p_lit")[0]
+            check(clicks_until_change("up", literals, "p_99")[0] == signature,
+                  "99 = unlimited steps over 10, not through 11..98")
 
-    for step in range(10):  # 10 plates -> none, on the 2.5 lb screen
+    for step in range(11):  # 99 -> 10 -> 9 -> .. -> none, on the 2.5 lb screen
         signature = clicks_until_change("down", signature, f"d{step}")[0]
 
     clicks_until_change("select", signature, "apply")

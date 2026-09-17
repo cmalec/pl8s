@@ -198,6 +198,25 @@ static int s_plate_counts[PLATE_N] = {COUNT_DEFAULT, COUNT_DEFAULT,
                                       COUNT_DEFAULT, COUNT_DEFAULT,
                                       COUNT_DEFAULT, COUNT_DEFAULT};
 
+// A count is either a literal 0..COUNT_MAX_LITERAL or the sentinel.
+static bool count_valid(int v) {
+  return v >= 0 && (v <= COUNT_MAX_LITERAL || v == COUNT_UNLIMITED);
+}
+
+// Snap any other value into the valid set: below none stays none, the gap
+// between the literal counts and the sentinel means "more than the glyph can
+// draw" and becomes the largest literal count, past the sentinel is the
+// sentinel.
+static int count_clamp(int v) {
+  if (v < 0) {
+    return 0;
+  }
+  if (v > COUNT_MAX_LITERAL && v < COUNT_UNLIMITED) {
+    return COUNT_MAX_LITERAL;
+  }
+  return v > COUNT_UNLIMITED ? COUNT_UNLIMITED : v;
+}
+
 // ---------------------------------------------------------------------------
 // Plate-count settings window (number entry)
 // ---------------------------------------------------------------------------
@@ -364,12 +383,29 @@ static void count_configure(NumberWindow *nw, int index) {
   snprintf(label, sizeof(label), "# of %s lb plates",
            PLATE_LB_STRS[index]);
   number_window_set_label(nw, label);
-  // Stored 0..10 maps to NumberWindow 1..11 so "10" (the sentinel for
-  // unlimited) is directly selectable.
-  number_window_set_min(nw, 1);
-  number_window_set_max(nw, COUNT_UNLIMITED + 1);
+  // The widget walks 0..COUNT_UNLIMITED, but only 0..COUNT_MAX_LITERAL and the
+  // sentinel are real counts: the callbacks below snap the values in between
+  // onto the sentinel, so UP from the largest literal count shows 99 and DOWN
+  // from 99 shows it right back.
+  number_window_set_min(nw, 0);
+  number_window_set_max(nw, COUNT_UNLIMITED);
   number_window_set_step_size(nw, 1);
-  number_window_set_value(nw, s_plate_counts[index] + 1);
+  number_window_set_value(nw, s_plate_counts[index]);
+}
+
+// Skip the widget's 11..98 on the way past the literal counts. The click
+// handlers set the new value and mark the layer dirty rather than drawing, so
+// the snapped value is the one that reaches the screen.
+static void count_incremented(NumberWindow *nw, void *context) {
+  if (s_count_index >= 0 && number_window_get_value(nw) > COUNT_MAX_LITERAL) {
+    number_window_set_value(nw, COUNT_UNLIMITED);
+  }
+}
+
+static void count_decremented(NumberWindow *nw, void *context) {
+  if (s_count_index >= 0 && number_window_get_value(nw) > COUNT_MAX_LITERAL) {
+    number_window_set_value(nw, COUNT_MAX_LITERAL);
+  }
 }
 
 static void count_selected_handler(struct NumberWindow *nw, void *context) {
@@ -384,7 +420,7 @@ static void count_selected_handler(struct NumberWindow *nw, void *context) {
     rebuild_row_layers();  // row count / plate size changed underneath
   } else {
     s_plate_counts[s_count_index] =
-        (int)number_window_get_value(nw) - 1;  // 1..11 -> 0..10
+        count_clamp((int)number_window_get_value(nw));
     persist_write_data(PERSIST_KEY_SETTINGS, s_plate_counts,
                        sizeof(s_plate_counts));
     APP_LOG(APP_LOG_LEVEL_INFO, "plate[%s]=%d",
@@ -755,13 +791,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   for (int i = 0; i < PLATE_N; i++) {
     t = dict_find(iter, s_plate_keys[i]);
     if (t != NULL && t->type == TUPLE_INT) {
-      int v = (int)t->value->int32;
-      if (v < 0) {
-        v = 0;
-      }
-      if (v > COUNT_UNLIMITED) {
-        v = COUNT_UNLIMITED;
-      }
+      int v = count_clamp((int)t->value->int32);
       if (v != s_plate_counts[i]) {
         s_plate_counts[i] = v;
         state_changed = true;
@@ -804,8 +834,8 @@ static void init(void) {
     for (int i = 0; i < PLATE_N; i++) {
       // Stale blob from a build with a different inventory type, or a
       // corrupt/foreign count: reset that size to the default.
-      if (bytes != (int)sizeof(s_plate_counts) || s_plate_counts[i] < 0 ||
-          s_plate_counts[i] > COUNT_UNLIMITED) {
+      if (bytes != (int)sizeof(s_plate_counts) ||
+          !count_valid(s_plate_counts[i])) {
         s_plate_counts[i] = COUNT_DEFAULT;
       }
     }
@@ -818,7 +848,9 @@ static void init(void) {
   number_window_set_value(s_number_window, s_max_lb);
 
   s_count_window = number_window_create("Plates",
-      (NumberWindowCallbacks){.selected = count_selected_handler}, NULL);
+      (NumberWindowCallbacks){.incremented = count_incremented,
+                              .decremented = count_decremented,
+                              .selected = count_selected_handler}, NULL);
 
   s_results_window = window_create();
   window_set_click_config_provider(s_results_window, results_click_provider);
