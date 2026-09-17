@@ -2,8 +2,7 @@
 
 A minimalist barbell percentage + plate calculator for Pebble, written in C.
 
-Enter your training max for an exercise and pl8s shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a thick disc with the weight printed horizontally in bold on its face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep
-the thin side-view bars.
+Enter your training max for an exercise and pl8s shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a thick disc with the weight printed horizontally in bold on its face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep the thin side-view bars.
 
 ![pl8s banner](appstore/banner/emery.png)
 
@@ -25,8 +24,7 @@ the thin side-view bars.
 | ![10% steps](appstore/screenshots/emery-results-10pct.png) | ![5% steps](appstore/screenshots/emery-results-5pct.png) | ![max entry](appstore/screenshots/emery-max-entry.png) | ![settings wizard](appstore/screenshots/emery-settings-plates.png) |
 | 10% steps: 5 rows, 90 down to 50                           | 5% steps: seven rows, 90 down to 60                      | Max entry (NumberWindow)                               | Wizard (hold SEL): plate counts, 99 = unlimited                    |
 
-These are the appstore assets: every platform has its own screenshot set and a 720x320 banner under [`appstore/`](appstore/listing.md), regenerated with
-`tools/appstore_shots.py` and `tools/make_appstore_assets.py`.
+These are the appstore assets: every platform has its own screenshot set and a 720x320 banner under [`appstore/`](appstore/), regenerated with `tools/appstore_shots.py` and `tools/make_appstore_assets.py`.
 
 ## Phone settings page
 
