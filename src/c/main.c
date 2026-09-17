@@ -147,21 +147,80 @@ static int plate_h(int i) {
 #endif
 }
 
-// Round displays cut the corners off: inset content from the screen edge so
-// the outermost columns stay inside the circular mask.
+// Round displays cut the corners off: row content is inset from the screen
+// edge so it stays inside the circular mask. The mask narrows toward the top
+// and bottom of the glass, so the inset is per row; rect displays keep the
+// small EDGE_INSET everywhere.
 #if defined(PBL_ROUND)
 #define EDGE_INSET 10
 #else
 #define EDGE_INSET 0
 #endif
 
+// Compact round displays are at their narrowest right at the top of the
+// glass: the title sits a little lower, where the mask's chord is wide enough
+// for it, "(5%)" suffix included.
+#if defined(PBL_ROUND) && !LAYOUT_LARGE
+#define HEADER_Y 14
+#else
+#define HEADER_Y 0
+#endif
+
+// Rows stop short of the bottom of the glass by this much: at the very bottom
+// the mask's chord is too narrow to hold a row.
+#define BOTTOM_MARGIN (EDGE_INSET ? 40 : 4)
+
+#if defined(PBL_ROUND)
+/** Integer square root (Newton's method), for the mask geometry below. */
+static int isqrt(int n) {
+  if (n <= 0) {
+    return 0;
+  }
+  int x = n;
+  for (int i = 0; i < 16; i++) {
+    int next = (x + n / x) / 2;
+    if (next >= x) {
+      break;
+    }
+    x = next;
+  }
+  return x;
+}
+#endif
+
+/**
+ * How far a row's content stays from the screen edge to clear the mask. The
+ * narrowest point of the row's band is the edge further from the middle, so
+ * that edge is what the inset is computed from.
+ */
+static int row_inset(int w, int h, int row_y, int row_h) {
+#if defined(PBL_ROUND)
+  int r = w / 2;
+  int bottom = row_y + row_h - h / 2;
+  int top = h / 2 - row_y;
+  int far = bottom > top ? bottom : top;
+  if (far < 0) {
+    far = -far;
+  }
+  return far >= r ? r : r - isqrt(r * r - far * far) + 4;
+#else
+  (void)w;
+  (void)h;
+  (void)row_y;
+  (void)row_h;
+  return EDGE_INSET;
+#endif
+}
+
 // Muted greys vanish or dither poorly on 1-bit displays; use white there.
 #if defined(PBL_COLOR)
 #define COLOR_PCT GColorLightGray
 #define COLOR_FOOTER GColorDarkGray
+#define COLOR_TITLE GColorOrange
 #else
 #define COLOR_PCT GColorWhite
 #define COLOR_FOOTER GColorWhite
+#define COLOR_TITLE GColorWhite  // orange is black on 1-bit displays
 #endif
 
 // ---------------------------------------------------------------------------
@@ -302,6 +361,7 @@ static void draw_plate_label(GContext *ctx, GRect zone, int plate_index,
 
 static void glyph_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
+  GRect glass = layer_get_bounds(s_root);
   int row_h = bounds.size.h / s_num_rows;
 
   for (int row = 0; row < s_num_rows; row++) {
@@ -312,8 +372,12 @@ static void glyph_update_proc(Layer *layer, GContext *ctx) {
     plate_math_calc_row(s_plate_counts, s_max_lb, 90 - row * s_pct_step,
                         &shown_lb, counts);
 
-    // Plates hang from the collar at the right edge, heaviest innermost.
-    int16_t collar_x = zone.origin.x + zone.size.w - 3 - EDGE_INSET;
+    // Plates hang from the collar at the right edge, heaviest innermost. On
+    // round displays the collar follows the mask, so the plates stay on the
+    // glass instead of being cut by it.
+    int inset = row_inset(glass.size.w, glass.size.h, TOP_Y + row * row_h,
+                          row_h);
+    int16_t collar_x = zone.origin.x + zone.size.w - 3 - inset;
     int16_t x = collar_x - PLATE_GAP;
     bool clipped = false;
     for (int i = 0; i < PLATE_N; i++) {
@@ -569,15 +633,18 @@ static void create_row_layers(Layer *root, int w, int h) {
   static char pct_bufs[MAX_ROWS][16];
   for (int row = 0; row < s_num_rows; row++) {
     GRect row_frame = GRect(0, TOP_Y + row * s_row_h, w, s_row_h);
+    // On round displays the text steps inward with the glyph, so a row's
+    // columns stay inside that row's slice of the mask.
+    int inset = row_inset(w, h, TOP_Y + row * s_row_h, s_row_h);
 #if LAYOUT_LARGE
-    GRect pct_frame = GRect(8 + EDGE_INSET,
+    GRect pct_frame = GRect(8 + inset,
                             row_frame.origin.y + (s_row_h - 16) / 2,
                             PCT_W, 16);
 #else
-    GRect pct_frame = GRect(8 + EDGE_INSET, row_frame.origin.y, PCT_W,
+    GRect pct_frame = GRect(8 + inset, row_frame.origin.y, PCT_W,
                             s_row_h);
 #endif
-    GRect weight_frame = GRect(WEIGHT_X + EDGE_INSET, row_frame.origin.y,
+    GRect weight_frame = GRect(WEIGHT_X + inset, row_frame.origin.y,
                                WEIGHT_W, s_row_h);
 
     // Percentages are always 2 digits (90..50).
@@ -648,9 +715,9 @@ static void rebuild_row_layers(void) {
   destroy_row_layers();
   int avail = b.size.h - TOP_Y;
 #if LAYOUT_LARGE
-  avail -= EDGE_INSET ? 28 : 4;
+  avail -= BOTTOM_MARGIN;
 #else
-  avail -= 20;  // footer
+  avail -= EDGE_INSET ? 36 : 20;  // footer, and the mask on round displays
 #endif
   s_row_h = avail / s_num_rows;
   create_row_layers(s_root, b.size.w, b.size.h);
@@ -679,20 +746,22 @@ static void results_window_load(Window *window) {
   s_row_h = (h - TOP_Y - (EDGE_INSET ? 28 : 4)) / s_num_rows;
   GRect header = GRect(0, 2, w, HEADER_H);
   s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
-                                  GColorOrange, GTextAlignmentCenter);
+                                  COLOR_TITLE, GTextAlignmentCenter);
   GRect hint = GRect(0, HINT_Y, w, 18);
   s_hint_layer = make_text_layer(hint, fonts_get_system_font(FONT_HINT),
                                  COLOR_PCT, GTextAlignmentCenter);
   text_layer_set_text(s_hint_layer, "per side  |  SEL: step/plates");
 #else
-  s_row_h = (h - TOP_Y - 20) / s_num_rows;
-  GRect header = GRect(0, 0, w, HEADER_H);
+  // Rows stop above the footer, and on round displays above the mask as well.
+  s_row_h = (h - TOP_Y - (EDGE_INSET ? 36 : 20)) / s_num_rows;
+  GRect header = GRect(0, HEADER_Y, w, HEADER_H);
   s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
-                                  GColorOrange, GTextAlignmentCenter);
+                                  COLOR_TITLE, GTextAlignmentCenter);
 #endif
 
 #if !LAYOUT_LARGE
-  GRect footer = GRect(0, h - 22, w, 20);
+  // Round displays: the footer keeps clear of the narrow bottom of the mask.
+  GRect footer = GRect(0, h - (EDGE_INSET ? 34 : 22), w, 20);
   s_footer_layer = make_text_layer(footer, fonts_get_system_font(FONT_FOOTER),
                                    COLOR_FOOTER, GTextAlignmentCenter);
   text_layer_set_text(s_footer_layer, "SEL: step/plates");
