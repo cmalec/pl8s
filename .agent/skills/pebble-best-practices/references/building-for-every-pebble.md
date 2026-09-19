@@ -1,0 +1,312 @@
+# Building for every Pebble
+
+Source: <https://developer.repebble.com/guides/best-practices/building-for-every-pebble/>
+
+Platform capability differences (Basalt, Chalk and Emery support 64 colors;
+Aplite, Diorite and Flint support two; platform-specific APIs such as Health or
+Dictation) make rich apps hard to keep compatible. To make life simple for users,
+**strive to write one app that can be used on all platforms** — the SDK provides
+several ways to accommodate different hardware capabilities in code.
+
+## Preprocessor directives
+
+`#ifdef` blocks let you compile code for specific purposes. Exclude the
+`Dictation` API on platforms with no microphone:
+
+```c
+#if defined(PBL_MICROPHONE)
+  // Start dictation UI
+  dictation_session_start(s_dictation_session);
+#else
+  // Microphone is not available
+  text_layer_set_text(s_some_layer, "Dictation not available!");
+#endif
+```
+
+Colors on compatible platforms can be adapted to black or white on non-color
+platforms. `PBL_COLOR` and `PBL_BW` are defined at compile time as appropriate:
+
+```c
+#if defined(PBL_COLOR)
+  text_layer_set_text_color(s_text_layer, GColorRed);
+  text_layer_set_background_color(s_text_layer, GColorChromeYellow);
+#else
+  text_layer_set_text_color(s_text_layer, GColorWhite);
+  text_layer_set_background_color(s_text_layer, GColorBlack);
+#endif
+```
+
+For a **single statement**, use the `PBL_IF_COLOR_ELSE()` macro instead:
+
+```c
+window_set_background_color(s_main_window, PBL_IF_COLOR_ELSE(GColorJaegerGreen, GColorBlack));
+```
+
+Macros suit individual value selection; defines suit selecting an entire block of
+code.
+
+## Available defines and macros
+
+| Define | Macro | Available |
+|--------|-------|-----------|
+| `PBL_BW` | `PBL_IF_BW_ELSE()` | Running on hardware that supports only black and white. |
+| `PBL_COLOR` | `PBL_IF_COLOR_ELSE()` | Running on hardware that supports 64 colors. |
+| `PBL_COMPASS` | None | Running on hardware that includes a compass. |
+| `PBL_MICROPHONE` | `PBL_IF_MICROPHONE_ELSE()` | Running on hardware that includes a microphone. |
+| `PBL_HEALTH` | `PBL_IF_HEALTH_ELSE()` | Running on hardware that supports Pebble Health and the `HealthService` API. |
+| `PBL_RGB_BACKLIGHT` | None | Running on hardware that includes an RGB backlight. |
+| `PBL_RECT` | `PBL_IF_RECT_ELSE()` | Running on hardware with a rectangular display. |
+| `PBL_ROUND` | `PBL_IF_ROUND_ELSE()` | Running on hardware with a round display. |
+| `PBL_SMARTSTRAP` | `PBL_IF_SMARTSTRAP_ELSE` | Running on hardware with smartstrap support. |
+| `PBL_SMARTSTRAP_POWER` | None | Running on hardware that includes a smartstrap connector capable of supplying power. |
+| `PBL_SPEAKER` | None | Running on hardware that includes a speaker. |
+| `PBL_TOUCH` | None | Running on hardware that includes a touch screen. |
+| `PBL_DISPLAY_WIDTH` | None | Determine the screen width in pixels. |
+| `PBL_DISPLAY_HEIGHT` | None | Determine the screen height in pixels. |
+| `PBL_PLATFORM_APLITE` | None | Built for Pebble/Pebble Steel. |
+| `PBL_PLATFORM_BASALT` | None | Built for Pebble Time/Pebble Time Steel. |
+| `PBL_PLATFORM_CHALK` | None | Built for Pebble Time Round. |
+| `PBL_PLATFORM_DIORITE` | None | Built for Pebble 2. |
+| `PBL_PLATFORM_EMERY` | None | Built for Pebble Time 2. |
+| `PBL_PLATFORM_FLINT` | None | Built for Pebble 2 Duo. |
+| `PBL_PLATFORM_GABBRO` | None | Built for Pebble Round 2. |
+| `PBL_SDK_2` | None | Compiling with SDK 2.x (deprecated). |
+| `PBL_SDK_3` | None | Compiling with SDK 3.x or 4.x. |
+
+> It is **strongly recommended** to conditionally compile code using applicable
+> **feature** defines instead of `PBL_PLATFORM` defines, to be as specific as
+> possible. Features are the stable axis; platforms come and go.
+
+## API detection
+
+Beyond platform and capability detection, API detection tests whether a specific
+API method is available. This is the most future-proof approach, since platforms
+and capabilities may come and go:
+
+```c
+#if PBL_API_EXISTS(health_service_peek_current_value)
+ // Do something if specific Health API exists
+#endif
+```
+
+## Avoid hardcoded layout values
+
+With multiple display shapes and resolutions, avoid hardcoding layout values:
+
+```c
+static void window_load(Window *window) {
+  // Create a full-screen Layer - BAD
+  s_some_layer = layer_create(GRect(0, 0, 144, 168));
+}
+```
+
+That covers the whole screen on Aplite, Basalt, Diorite and Flint — but **not** on
+Chalk or Emery. Use the `UnobstructedArea` bounds of the `Window` itself:
+
+```c
+static void window_load(Window *window) {
+  // Get the unobstructed bounds of the Window
+  Layer window_layer = window_get_root_layer(window);
+  GRect window_bounds = layer_get_unobstructed_bounds(window_layer);
+
+  // Properly create a full-screen Layer - GOOD
+  s_some_layer = layer_create(window_bounds);
+}
+```
+
+Proportional values follow the same rule — half the unobstructed height:
+
+```c
+GRect layer_bounds = window_bounds;
+layer_bounds.size.h /= 2;
+
+// Create a Layer that is half the screen height
+s_some_layer = layer_create(layer_bounds);
+```
+
+This also simplifies adapting an app to a future screen size, since proportional
+values adapt automatically as the unobstructed bounds change.
+
+Note "unobstructed": the timeline can push a *peek* over the bottom of the
+display, and the plain `layer_get_bounds()` value does not account for it.
+
+## Screen sizes
+
+New compiler directives let you determine screen width and height. This is
+preferable to platform detection, since **multiple platforms share the same
+screen width and height**:
+
+```c
+#if PBL_DISPLAY_HEIGHT == 228
+  uint8_t offset_y = 100;
+#elif PBL_DISPLAY_HEIGHT == 180
+  uint8_t offset_y = 80;
+#else
+  uint8_t offset_y = 60;
+#endif
+```
+
+> Although preferable to platform detection, it is even better to **dynamically
+> calculate** width and height from the unobstructed bounds of the root layer.
+
+## Pebble C WatchInfo
+
+The `WatchInfo` API determines exactly which Pebble model and color an app is
+running on, so an app can dynamically modify layout or behavior.
+
+For example, the display on Pebble Steel sits at a different vertical position
+relative to the buttons than on Pebble Time. On-screen button hints can be
+adjusted with `WatchInfoModel`:
+
+```c
+static void window_load(Window *window) {
+  Layer window_layer = window_get_root_layer(window);
+  GRect window_bounds = layer_get_bounds(window_layer);
+
+  int button_height, y_offset;
+
+  // Conditionally set layout parameters
+  switch(watch_info_get_model()) {
+    case WATCH_INFO_MODEL_PEBBLE_STEEL:
+      y_offset = 64;
+      button_height = 44;
+      break;
+    case WATCH_INFO_MODEL_PEBBLE_TIME:
+      y_offset = 58;
+      button_height = 56;
+      break;
+
+    /* Other cases */
+
+    default:
+      y_offset = 0;
+      button_height = 0;
+      break;
+
+  }
+
+  // Set the Layer frame
+  GRect layer_frame = GRect(0, y_offset, window_bounds.size.w, button_height);
+
+  // Create the Layer
+  s_label_layer = text_layer_create(layer_frame);
+  layer_add_child(window_layer, text_layer_get_layer(s_label_layer));
+
+  /* Other UI code */
+
+}
+```
+
+`WatchInfoColor` values theme an app per watch color:
+
+```c
+static void window_load(Window *window) {
+  GColor text_color, background_color;
+
+  // Choose different theme colors per watch color
+  switch(watch_info_get_color()) {
+    case WATCH_INFO_COLOR_RED:
+      // Red theme
+      text_color = GColorWhite;
+      background_color = GColorRed;
+      break;
+    case WATCH_INFO_COLOR_BLUE:
+      // Blue theme
+      text_color = GColorBlack;
+      background_color = GColorVeryLightBlue;
+      break;
+
+    /* Other cases */
+
+    default:
+      text_color = GColorBlack;
+      background_color = GColorWhite;
+      break;
+
+  }
+
+  // Use the conditionally set value
+  text_layer_set_text_color(s_label_layer, text_color);
+  text_layer_set_background_color(s_label_layer, background_color);
+
+  /* Other UI code */
+
+}
+```
+
+## PebbleKit JS watch info
+
+The PebbleKit JS `Pebble.getActiveWatchInfo()` method determines which model and
+color of Pebble the user has, plus the firmware version. To obtain the model:
+
+> See the section below on avoiding problems using this function on older app
+> versions.
+
+```javascript
+// Get the watch info
+var info = Pebble.getActiveWatchInfo();
+
+console.log('Pebble model: ' + info.model);
+```
+
+## Detecting platform-specific JS features
+
+Several PebbleKit JS features (`Pebble.timelineSubscribe()`,
+`Pebble.getActiveWatchInfo()`) exist only on SDK 3.x. Calling them on an older
+Pebble mobile app version **crashes the JS app**.
+
+Check for the function before calling it:
+
+```javascript
+if (Pebble.getActiveWatchInfo) {
+  // Available.
+  var info = Pebble.getActiveWatchInfo();
+
+  console.log('Pebble model: ' + info.model);
+} else {
+  // Gracefully handle no info available
+
+}
+```
+
+## Platform-specific resources
+
+Including both color and black-and-white versions of a resource is expensive from
+a storage perspective, and burdens an Aplite/Diorite/Flint build with redundant
+color resources.
+
+The SDK lets you specify which version of an image resource is used per display
+type, using `~bw` or `~color` appended to a file name. Resources can also be
+bundled only with specific platforms via the `targetPlatforms` property.
+
+For the full tag list and packaging details, see
+[Platform-specific resources](../../pebble-app-resources/references/platform-specific.md).
+
+## Multiple display shapes
+
+Use defines to distinguish the two display shapes:
+
+```c
+#if defined(PBL_RECT)
+  printf("This is a rectangular display!");
+#elif defined(PBL_ROUND)
+  printf("This is a round display!");
+#endif
+```
+
+Or the macros, which avoid a `#define` block and drop four lines of verbosity:
+
+```c
+// Conditionally print out the shape of the display
+printf("This is a %s display!", PBL_IF_RECT_ELSE("rectangular", "round"));
+```
+
+Best used with window-bounds-derived layout size and position. See
+[Avoid hardcoded layout values](#avoid-hardcoded-layout-values) above. Making good
+use of the builtin `Layer` types also safeguards apps against display shape and
+size changes.
+
+One more consideration for round displays: **each horizontal line of text has a
+different available width**, depending on its vertical position. See
+[Round app design](../../pebble-design/references/in-the-round.md) for the
+pagination technique that handles this.
