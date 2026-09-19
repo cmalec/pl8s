@@ -2,6 +2,8 @@
 
 A minimalist barbell percentage + plate calculator for Pebble, written in C.
 
+[Pebble Appstore Link](https://apps.rebble.io/en_US/application/6aaf0625cf733a0009498c27)
+
 Enter your training max for an exercise and pl8s shows descending percentages with the exact weight to load and a glyph of the plates needed **per side** (default 90..50 in 10% steps, or 90..60 in 5% steps — selectable in settings). Large color displays (Pebble Time 2 / agate) draw each plate as a thick disc with the weight printed horizontally in bold on its face and a gym-standard color per size (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey); compact displays keep the thin side-view bars.
 
 ![pl8s banner](appstore/banner/emery.png)
