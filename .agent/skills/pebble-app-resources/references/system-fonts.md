@@ -2,62 +2,59 @@
 
 Source: <https://developer.rebble.com/guides/app-resources/system-fonts/>
 
-Every system font identifier available in the Pebble SDK, sorted by family.
-System fonts are fetched with `fonts_get_system_font(FONT_KEY_...)` and **must
-not be destroyed**. See [fonts.md](fonts.md) for usage and for the number-only
-limitations.
+Every system font identifier available in the Pebble SDK, sorted by family. System fonts are fetched with `fonts_get_system_font(FONT_KEY_...)` and **must not be destroyed**. See [fonts.md](fonts.md) for usage and for the number-only limitations.
 
-Preview images for each key live under
-`https://developer.rebble.com/assets/images/guides/app-resources/fonts/<name>.png`,
-where `<name>` is the lowercase key suffixed `_preview` (1-bit rendering) or
-`_emery` (color rendering) — e.g. `gothic_24_preview.png`, `gothic_24_emery.png`,
-`leco_26_bold_preview.png`, `roboto_49_bold_subset_emery.png`. Emoji glyphs live
-under `/assets/images/guides/pebble-apps/resources/emoji-glyphs/{small,large,jumbo}/`.
+| Column | Meaning |
+|--------|---------|
+| Emery preview | The color rendering — what the font looks like on Basalt / Chalk / Emery / Gabbro. **This is the one that matches Emery (Pebble Time 2).** |
+| 1-bit preview | The Aplite / Diorite / Flint rendering, for checking legibility on the two-color platforms. |
+
+Emoji glyphs are linked per codepoint under `https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/{small,large,jumbo}/`.
 
 ## Raster Gothic
 
-| Key                       |
-|---------------------------|
-| `FONT_KEY_GOTHIC_14`      |
-| `FONT_KEY_GOTHIC_14_BOLD` |
-| `FONT_KEY_GOTHIC_18`      |
-| `FONT_KEY_GOTHIC_18_BOLD` |
-| `FONT_KEY_GOTHIC_24`      |
-| `FONT_KEY_GOTHIC_24_BOLD` |
-| `FONT_KEY_GOTHIC_28`      |
-| `FONT_KEY_GOTHIC_28_BOLD` |
+| Key | Emery preview | 1-bit preview |
+|-----|---------------|---------------|
+| `FONT_KEY_GOTHIC_14` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_14_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_14_preview.png) |
+| `FONT_KEY_GOTHIC_14_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_14_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_14_bold_preview.png) |
+| `FONT_KEY_GOTHIC_18` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_18_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_18_preview.png) |
+| `FONT_KEY_GOTHIC_18_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_18_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_18_bold_preview.png) |
+| `FONT_KEY_GOTHIC_24` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_24_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_24_preview.png) |
+| `FONT_KEY_GOTHIC_24_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_24_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_24_bold_preview.png) |
+| `FONT_KEY_GOTHIC_28` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_28_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_28_preview.png) |
+| `FONT_KEY_GOTHIC_28_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_28_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/gothic_28_bold_preview.png) |
 
 ## Bitham
 
-| Key                                 |
-|-------------------------------------|
-| `FONT_KEY_BITHAM_30_BLACK`          |
-| `FONT_KEY_BITHAM_34_MEDIUM_NUMBERS` |
-| `FONT_KEY_BITHAM_42_BOLD`           |
-| `FONT_KEY_BITHAM_42_LIGHT`          |
-| `FONT_KEY_BITHAM_42_MEDIUM_NUMBERS` |
+| Key | Emery preview | 1-bit preview |
+|-----|---------------|---------------|
+| `FONT_KEY_BITHAM_30_BLACK` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_30_black_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_30_black_preview.png) |
+| `FONT_KEY_BITHAM_34_MEDIUM_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_34_medium_numbers_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_34_medium_numbers_preview.png) |
+| `FONT_KEY_BITHAM_42_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_bold_preview.png) |
+| `FONT_KEY_BITHAM_42_LIGHT` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_light_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_light_preview.png) |
+| `FONT_KEY_BITHAM_42_MEDIUM_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_medium_numbers_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/bitham_42_medium_numbers_preview.png) |
 
 ## Roboto / Droid Serif
 
-| Key                              |
-|----------------------------------|
-| `FONT_KEY_ROBOTO_CONDENSED_21`   |
-| `FONT_KEY_ROBOTO_BOLD_SUBSET_49` |
-| `FONT_KEY_DROID_SERIF_28_BOLD`   |
+| Key | Emery preview | 1-bit preview |
+|-----|---------------|---------------|
+| `FONT_KEY_ROBOTO_CONDENSED_21` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/roboto_21_condensed_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/roboto_21_condensed_preview.png) |
+| `FONT_KEY_ROBOTO_BOLD_SUBSET_49` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/roboto_49_bold_subset_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/roboto_49_bold_subset_preview.png) |
+| `FONT_KEY_DROID_SERIF_28_BOLD` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/droid_28_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/droid_28_bold_preview.png) |
 
 ## LECO
 
-| Key                                   | Availability         |
-|---------------------------------------|----------------------|
-| `FONT_KEY_LECO_20_BOLD_NUMBERS`       |                      |
-| `FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM` |                      |
-| `FONT_KEY_LECO_28_LIGHT_NUMBERS`      |                      |
-| `FONT_KEY_LECO_32_BOLD_NUMBERS`       |                      |
-| `FONT_KEY_LECO_36_BOLD_NUMBERS`       |                      |
-| `FONT_KEY_LECO_38_BOLD_NUMBERS`       |                      |
-| `FONT_KEY_LECO_42_NUMBERS`            |                      |
-| `FONT_KEY_LECO_60_NUMBERS_AM_PM`      | Emery and newer only |
-| `FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM` | Emery and newer only |
+| Key | Emery preview | 1-bit preview | Availability |
+|-----|---------------|---------------|--------------|
+| `FONT_KEY_LECO_20_BOLD_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_20_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_20_bold_preview.png) |  |
+| `FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_26_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_26_bold_preview.png) |  |
+| `FONT_KEY_LECO_28_LIGHT_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_28_light_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_28_light_preview.png) |  |
+| `FONT_KEY_LECO_32_BOLD_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_32_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_32_bold_preview.png) |  |
+| `FONT_KEY_LECO_36_BOLD_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_36_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_36_bold_preview.png) |  |
+| `FONT_KEY_LECO_38_BOLD_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_38_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_38_bold_preview.png) |  |
+| `FONT_KEY_LECO_42_NUMBERS` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_42_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_42_preview.png) |  |
+| `FONT_KEY_LECO_60_NUMBERS_AM_PM` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_60_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_60_preview.png) | Emery and newer only |
+| `FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM` | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_60_bold_emery.png) | [png](https://developer.rebble.com/assets/images/guides/app-resources/fonts/leco_60_bold_preview.png) | Emery and newer only |
 
 ## Obtaining system font files
 
@@ -79,134 +76,135 @@ text_layer_set_text(s_layer, "Smiley face: \U0001F603");
 ```
 
 The escape is the Unicode codepoint, so the table below is directly usable in a
-C string literal. *Jumbomoji* is the 80x80 SVG PebbleOS substitutes when a
-notification body is just that one emoji — the ones listed have a named file
-under `emoji-glyphs/jumbo/`, the rest have none.
+C string literal. Each row links its three renderings: **Small** and **Large**
+are the on-watch glyph PNGs, and **Jumbomoji** is the 80x80 SVG PebbleOS
+substitutes when a notification body is just that one emoji. A dash in the
+Jumbomoji column means no jumbo art exists for that codepoint.
 
-| Codepoint | Symbol | Jumbomoji file | Name |
-|-----------|--------|----------------|------|
-| `U+231A`  | ⌚ | | Watch *(new)* |
-| `U+263A`  | ☺ | | White Smiling Face |
-| `U+2620`  | ☠ | | Skull and Crossbones *(new)* |
-| `U+26A7`  | ⚧ | | Transgender Symbol *(new)* |
-| `U+2705`  | ✅ | | Check Mark Button *(new)* |
-| `U+270B`  | ✋ | | Raised Hand |
-| `U+270C`  | ✌ | | Victory Hand |
-| `U+2728`  | ✨ | | Sparkles *(new)* |
-| `U+274E`  | ❎ | | Cross Mark Button *(new)* |
-| `U+2757`  | ❗ | | Red Exclamation Mark *(new)* |
-| `U+2763`  | ❣ | | Heavy Heart Exclamation *(new)* |
-| `U+2764`  | ❤ | `Pebble_80x80_Emoji_heart.svg` | Heavy Black Heart |
-| `U+2B50`  | ⭐ | | Star *(new)* |
-| `U+1F319` | 🌙 | | Crescent Moon *(new)* |
-| `U+1F31F` | 🌟 | | Glowing Star *(new)* |
-| `U+1F337` | 🌷 | | Tulip *(new)* |
-| `U+1F338` | 🌸 | | Cherry Blossom *(new)* |
-| `U+1F33A` | 🌺 | | Hibiscus *(new)* |
-| `U+1F340` | 🍀 | | Four Leaf Clover *(new)* |
-| `U+1F37A` | 🍺 | | Beer Mug |
-| `U+1F37B` | 🍻 | | Clinking Beer Mugs |
-| `U+1F389` | 🎉 | | Party Popper |
-| `U+1F3B6` | 🎶 | | Musical Notes *(new)* |
-| `U+1F3F3` | 🏳 | | Waving White Flag *(new)* |
-| `U+1F425` | 🐥 | | Front-Facing Baby Chick |
-| `U+1F440` | 👀 | | Eyes *(new)* |
-| `U+1F44D` | 👍 | `Pebble_80x80_Emoji_thumbs_up.svg` | Thumbs Up |
-| `U+1F44E` | 👎 | | Thumbs Down |
-| `U+1F480` | 💀 | | Skull *(new)* |
-| `U+1F493` | 💓 | | Beating Heart |
-| `U+1F494` | 💔 | | Broken Heart |
-| `U+1F495` | 💕 | | Two Hearts |
-| `U+1F496` | 💖 | | Sparkling Heart |
-| `U+1F497` | 💗 | | Growing Heart |
-| `U+1F498` | 💘 | | Heart with Arrow |
-| `U+1F499` | 💙 | `Pebble_80x80_Emoji_heart.svg` | Blue Heart |
-| `U+1F49A` | 💚 | `Pebble_80x80_Emoji_heart.svg` | Green Heart |
-| `U+1F49B` | 💛 | `Pebble_80x80_Emoji_heart.svg` | Yellow Heart |
-| `U+1F49C` | 💜 | `Pebble_80x80_Emoji_heart.svg` | Purple Heart |
-| `U+1F49D` | 💝 | | Heart with Ribbon |
-| `U+1F49E` | 💞 | | Revolving Hearts |
-| `U+1F49F` | 💟 | | Heart Decoration |
-| `U+1F4A1` | 💡 | | Light Bulb *(new)* |
-| `U+1F4A3` | 💣 | | Bomb *(new)* |
-| `U+1F4A5` | 💥 | | Collision *(new)* |
-| `U+1F4A9` | 💩 | | Pile of Poo |
-| `U+1F4AF` | 💯 | | Hundred Points *(new)* |
-| `U+1F5A4` | 🖤 | | Black Heart *(new)* |
-| `U+1F600` | 😀 | `Pebble_80x80_Emoji_big_open_smile.svg` | Grinning Face |
-| `U+1F601` | 😁 | `Pebble_80x80_Emoji_smiling_with_teeth.svg` | Beaming Face with Smiling Eyes |
-| `U+1F602` | 😂 | `Pebble_80x80_Emoji_laughing_with_tears.svg` | Face with Tears of Joy |
-| `U+1F603` | 😃 | `Pebble_80x80_Emoji_big_open_smile.svg` | Smiling Face with Open Mouth |
-| `U+1F604` | 😄 | `Pebble_80x80_Emoji_big_smile.svg` | Smiling Face with Smiling Eyes |
-| `U+1F605` | 😅 | | Smiling Face with Cold Sweat |
-| `U+1F606` | 😆 | | Smiling Face with Closed Eyes |
-| `U+1F607` | 😇 | | Smiling Face with Halo |
-| `U+1F608` | 😈 | | Smiling Face with Horns |
-| `U+1F609` | 😉 | `Pebble_80x80_Emoji_wink.svg` | Winking Face |
-| `U+1F60A` | 😊 | `Pebble_80x80_Emoji_smiling_blush.svg` | Smiling Face with Smiling Eyes |
-| `U+1F60B` | 😋 | | Face Savoring Food |
-| `U+1F60C` | 😌 | | Relieved Face |
-| `U+1F60D` | 😍 | `Pebble_80x80_Emoji_smiling_hearts.svg` | Smiling Face with Heart-Eyes |
-| `U+1F60E` | 😎 | | Smiling Face with Sunglasses |
-| `U+1F60F` | 😏 | | Smirking Face |
-| `U+1F610` | 😐 | | Neutral Face |
-| `U+1F611` | 😑 | | Expressionless Face |
-| `U+1F612` | 😒 | | Unamused Face |
-| `U+1F613` | 😓 | | Face with Cold Sweat |
-| `U+1F614` | 😔 | | Pensive Face |
-| `U+1F615` | 😕 | | Confused Face |
-| `U+1F616` | 😖 | | Confounded Face |
-| `U+1F617` | 😗 | | Kissing Face |
-| `U+1F618` | 😘 | `Pebble_80x80_Emoji_kissing_with_heart.svg` | Face Blowing a Kiss |
-| `U+1F619` | 😙 | | Kissing Face with Smiling Eyes |
-| `U+1F61A` | 😚 | | Kissing Face with Closed Eyes |
-| `U+1F61B` | 😛 | | Face with Tongue |
-| `U+1F61C` | 😜 | `Pebble_80x80_Emoji_wink_tongue.svg` | Winking Face with Tongue |
-| `U+1F61D` | 😝 | | Squinting Face with Tongue |
-| `U+1F61E` | 😞 | `Pebble_80x80_Emoji_sad.svg` | Disappointed Face |
-| `U+1F61F` | 😟 | `Pebble_80x80_Emoji_sad.svg` | Worried Face |
-| `U+1F620` | 😠 | | Angry Face |
-| `U+1F621` | 😡 | | Pouting Face |
-| `U+1F622` | 😢 | | Crying Face |
-| `U+1F623` | 😣 | | Persevering Face |
-| `U+1F624` | 😤 | | Face with Steam from Nose |
-| `U+1F625` | 😥 | | Sad but Relieved Face |
-| `U+1F626` | 😦 | | Frowning Face with Open Mouth |
-| `U+1F627` | 😧 | | Anguished Face |
-| `U+1F628` | 😨 | | Fearful Face |
-| `U+1F629` | 😩 | | Weary Face |
-| `U+1F62A` | 😪 | | Sleepy Face |
-| `U+1F62B` | 😫 | | Tired Face |
-| `U+1F62C` | 😬 | | Grimacing Face |
-| `U+1F62D` | 😭 | | Loudly Crying Face |
-| `U+1F62E` | 😮 | | Face with Open Mouth |
-| `U+1F62F` | 😯 | | Hushed Face |
-| `U+1F630` | 😰 | | Anxious Face with Sweat |
-| `U+1F631` | 😱 | | Face Screaming in Fear |
-| `U+1F632` | 😲 | | Astonished Face |
-| `U+1F633` | 😳 | | Flushed Face |
-| `U+1F634` | 😴 | | Sleeping Face |
-| `U+1F635` | 😵 | | Dizzy Face |
-| `U+1F636` | 😶 | | Face Without Mouth |
-| `U+1F637` | 😷 | | Face with Medical Mask |
-| `U+1F643` | 🙃 | | Upside-Down Face *(new)* |
-| `U+1F644` | 🙄 | | Face with Rolling Eyes *(new)* |
-| `U+1F64F` | 🙏 | | Folded Hands |
-| `U+1F917` | 🤗 | | Hugging Face *(new)* |
-| `U+1F918` | 🤘 | | Sign of the Horns *(new)* |
-| `U+1F91D` | 🤝 | | Handshake *(new)* |
-| `U+1F923` | 🤣 | | Rolling on the Floor Laughing *(new)* |
-| `U+1F924` | 🤤 | | Drooling Face *(new)* |
-| `U+1F929` | 🤩 | | Star-Struck *(new)* |
-| `U+1F92A` | 🤪 | | Zany Face *(new)* |
-| `U+1F92C` | 🤬 | | Face with Symbols on Mouth *(new)* |
-| `U+1F92E` | 🤮 | | Face Vomiting *(new)* |
-| `U+1F970` | 🥰 | | Smiling Face with Hearts *(new)* |
-| `U+1F97A` | 🥺 | | Pleading Face *(new)* |
+| Codepoint | Symbol | Small | Large | Jumbomoji | Name |
+|-----------|--------|-------|-------|-----------|------|
+| `U+231A` | ⌚ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+231A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+231A.png) | — | Watch *(new)* |
+| `U+263A` | ☺ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+263A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+263A.png) | — | White Smiling Face |
+| `U+2620` | ☠ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2620.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2620.png) | — | Skull and Crossbones *(new)* |
+| `U+26A7` | ⚧ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+26A7.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+26A7.png) | — | Transgender Symbol *(new)* |
+| `U+2705` | ✅ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2705.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2705.png) | — | Check Mark Button *(new)* |
+| `U+270B` | ✋ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+270B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+270B.png) | — | Raised Hand |
+| `U+270C` | ✌ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+270C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+270C.png) | — | Victory Hand |
+| `U+2728` | ✨ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2728.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2728.png) | — | Sparkles *(new)* |
+| `U+274E` | ❎ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+274E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+274E.png) | — | Cross Mark Button *(new)* |
+| `U+2757` | ❗ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2757.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2757.png) | — | Red Exclamation Mark *(new)* |
+| `U+2763` | ❣ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2763.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2763.png) | — | Heavy Heart Exclamation *(new)* |
+| `U+2764` | ❤ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2764.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2764.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_heart.svg) | Heavy Black Heart |
+| `U+2B50` | ⭐ | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+2B50.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+2B50.png) | — | Star *(new)* |
+| `U+1F319` | 🌙 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F319.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F319.png) | — | Crescent Moon *(new)* |
+| `U+1F31F` | 🌟 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F31F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F31F.png) | — | Glowing Star *(new)* |
+| `U+1F337` | 🌷 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F337.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F337.png) | — | Tulip *(new)* |
+| `U+1F338` | 🌸 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F338.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F338.png) | — | Cherry Blossom *(new)* |
+| `U+1F33A` | 🌺 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F33A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F33A.png) | — | Hibiscus *(new)* |
+| `U+1F340` | 🍀 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F340.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F340.png) | — | Four Leaf Clover *(new)* |
+| `U+1F37A` | 🍺 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F37A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F37A.png) | — | Beer Mug |
+| `U+1F37B` | 🍻 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F37B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F37B.png) | — | Clinking Beer Mugs |
+| `U+1F389` | 🎉 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F389.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F389.png) | — | Party Popper |
+| `U+1F3B6` | 🎶 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F3B6.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F3B6.png) | — | Musical Notes *(new)* |
+| `U+1F3F3` | 🏳 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F3F3.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F3F3.png) | — | Waving White Flag *(new)* |
+| `U+1F425` | 🐥 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F425.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F425.png) | — | Front-Facing Baby Chick |
+| `U+1F440` | 👀 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F440.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F440.png) | — | Eyes *(new)* |
+| `U+1F44D` | 👍 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F44D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F44D.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_thumbs_up.svg) | Thumbs Up |
+| `U+1F44E` | 👎 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F44E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F44E.png) | — | Thumbs Down |
+| `U+1F480` | 💀 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F480.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F480.png) | — | Skull *(new)* |
+| `U+1F493` | 💓 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F493.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F493.png) | — | Beating Heart |
+| `U+1F494` | 💔 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F494.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F494.png) | — | Broken Heart |
+| `U+1F495` | 💕 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F495.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F495.png) | — | Two Hearts |
+| `U+1F496` | 💖 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F496.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F496.png) | — | Sparkling Heart |
+| `U+1F497` | 💗 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F497.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F497.png) | — | Growing Heart |
+| `U+1F498` | 💘 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F498.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F498.png) | — | Heart with Arrow |
+| `U+1F499` | 💙 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F499.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F499.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_heart.svg) | Blue Heart |
+| `U+1F49A` | 💚 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49A.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_heart.svg) | Green Heart |
+| `U+1F49B` | 💛 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49B.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_heart.svg) | Yellow Heart |
+| `U+1F49C` | 💜 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49C.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_heart.svg) | Purple Heart |
+| `U+1F49D` | 💝 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49D.png) | — | Heart with Ribbon |
+| `U+1F49E` | 💞 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49E.png) | — | Revolving Hearts |
+| `U+1F49F` | 💟 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F49F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F49F.png) | — | Heart Decoration |
+| `U+1F4A1` | 💡 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F4A1.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F4A1.png) | — | Light Bulb *(new)* |
+| `U+1F4A3` | 💣 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F4A3.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F4A3.png) | — | Bomb *(new)* |
+| `U+1F4A5` | 💥 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F4A5.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F4A5.png) | — | Collision *(new)* |
+| `U+1F4A9` | 💩 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F4A9.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F4A9.png) | — | Pile of Poo |
+| `U+1F4AF` | 💯 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F4AF.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F4AF.png) | — | Hundred Points *(new)* |
+| `U+1F5A4` | 🖤 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F5A4.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F5A4.png) | — | Black Heart *(new)* |
+| `U+1F600` | 😀 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F600.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F600.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_big_open_smile.svg) | Grinning Face |
+| `U+1F601` | 😁 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F601.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F601.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_smiling_with_teeth.svg) | Beaming Face with Smiling Eyes |
+| `U+1F602` | 😂 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F602.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F602.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_laughing_with_tears.svg) | Face with Tears of Joy |
+| `U+1F603` | 😃 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F603.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F603.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_big_open_smile.svg) | Smiling Face with Open Mouth |
+| `U+1F604` | 😄 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F604.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F604.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_big_smile.svg) | Smiling Face with Smiling Eyes |
+| `U+1F605` | 😅 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F605.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F605.png) | — | Smiling Face with Cold Sweat |
+| `U+1F606` | 😆 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F606.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F606.png) | — | Smiling Face with Closed Eyes |
+| `U+1F607` | 😇 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F607.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F607.png) | — | Smiling Face with Halo |
+| `U+1F608` | 😈 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F608.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F608.png) | — | Smiling Face with Horns |
+| `U+1F609` | 😉 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F609.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F609.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_wink.svg) | Winking Face |
+| `U+1F60A` | 😊 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60A.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_smiling_blush.svg) | Smiling Face with Smiling Eyes |
+| `U+1F60B` | 😋 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60B.png) | — | Face Savoring Food |
+| `U+1F60C` | 😌 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60C.png) | — | Relieved Face |
+| `U+1F60D` | 😍 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60D.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_smiling_hearts.svg) | Smiling Face with Heart-Eyes |
+| `U+1F60E` | 😎 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60E.png) | — | Smiling Face with Sunglasses |
+| `U+1F60F` | 😏 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F60F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F60F.png) | — | Smirking Face |
+| `U+1F610` | 😐 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F610.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F610.png) | — | Neutral Face |
+| `U+1F611` | 😑 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F611.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F611.png) | — | Expressionless Face |
+| `U+1F612` | 😒 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F612.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F612.png) | — | Unamused Face |
+| `U+1F613` | 😓 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F613.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F613.png) | — | Face with Cold Sweat |
+| `U+1F614` | 😔 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F614.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F614.png) | — | Pensive Face |
+| `U+1F615` | 😕 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F615.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F615.png) | — | Confused Face |
+| `U+1F616` | 😖 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F616.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F616.png) | — | Confounded Face |
+| `U+1F617` | 😗 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F617.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F617.png) | — | Kissing Face |
+| `U+1F618` | 😘 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F618.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F618.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_kissing_with_heart.svg) | Face Blowing a Kiss |
+| `U+1F619` | 😙 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F619.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F619.png) | — | Kissing Face with Smiling Eyes |
+| `U+1F61A` | 😚 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61A.png) | — | Kissing Face with Closed Eyes |
+| `U+1F61B` | 😛 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61B.png) | — | Face with Tongue |
+| `U+1F61C` | 😜 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61C.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_wink_tongue.svg) | Winking Face with Tongue |
+| `U+1F61D` | 😝 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61D.png) | — | Squinting Face with Tongue |
+| `U+1F61E` | 😞 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61E.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_sad.svg) | Disappointed Face |
+| `U+1F61F` | 😟 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F61F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F61F.png) | [svg](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/jumbo/Pebble_80x80_Emoji_sad.svg) | Worried Face |
+| `U+1F620` | 😠 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F620.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F620.png) | — | Angry Face |
+| `U+1F621` | 😡 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F621.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F621.png) | — | Pouting Face |
+| `U+1F622` | 😢 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F622.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F622.png) | — | Crying Face |
+| `U+1F623` | 😣 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F623.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F623.png) | — | Persevering Face |
+| `U+1F624` | 😤 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F624.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F624.png) | — | Face with Steam from Nose |
+| `U+1F625` | 😥 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F625.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F625.png) | — | Sad but Relieved Face |
+| `U+1F626` | 😦 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F626.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F626.png) | — | Frowning Face with Open Mouth |
+| `U+1F627` | 😧 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F627.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F627.png) | — | Anguished Face |
+| `U+1F628` | 😨 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F628.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F628.png) | — | Fearful Face |
+| `U+1F629` | 😩 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F629.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F629.png) | — | Weary Face |
+| `U+1F62A` | 😪 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62A.png) | — | Sleepy Face |
+| `U+1F62B` | 😫 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62B.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62B.png) | — | Tired Face |
+| `U+1F62C` | 😬 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62C.png) | — | Grimacing Face |
+| `U+1F62D` | 😭 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62D.png) | — | Loudly Crying Face |
+| `U+1F62E` | 😮 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62E.png) | — | Face with Open Mouth |
+| `U+1F62F` | 😯 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F62F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F62F.png) | — | Hushed Face |
+| `U+1F630` | 😰 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F630.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F630.png) | — | Anxious Face with Sweat |
+| `U+1F631` | 😱 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F631.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F631.png) | — | Face Screaming in Fear |
+| `U+1F632` | 😲 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F632.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F632.png) | — | Astonished Face |
+| `U+1F633` | 😳 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F633.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F633.png) | — | Flushed Face |
+| `U+1F634` | 😴 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F634.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F634.png) | — | Sleeping Face |
+| `U+1F635` | 😵 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F635.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F635.png) | — | Dizzy Face |
+| `U+1F636` | 😶 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F636.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F636.png) | — | Face Without Mouth |
+| `U+1F637` | 😷 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F637.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F637.png) | — | Face with Medical Mask |
+| `U+1F643` | 🙃 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F643.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F643.png) | — | Upside-Down Face *(new)* |
+| `U+1F644` | 🙄 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F644.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F644.png) | — | Face with Rolling Eyes *(new)* |
+| `U+1F64F` | 🙏 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F64F.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F64F.png) | — | Folded Hands |
+| `U+1F917` | 🤗 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F917.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F917.png) | — | Hugging Face *(new)* |
+| `U+1F918` | 🤘 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F918.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F918.png) | — | Sign of the Horns *(new)* |
+| `U+1F91D` | 🤝 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F91D.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F91D.png) | — | Handshake *(new)* |
+| `U+1F923` | 🤣 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F923.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F923.png) | — | Rolling on the Floor Laughing *(new)* |
+| `U+1F924` | 🤤 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F924.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F924.png) | — | Drooling Face *(new)* |
+| `U+1F929` | 🤩 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F929.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F929.png) | — | Star-Struck *(new)* |
+| `U+1F92A` | 🤪 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F92A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F92A.png) | — | Zany Face *(new)* |
+| `U+1F92C` | 🤬 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F92C.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F92C.png) | — | Face with Symbols on Mouth *(new)* |
+| `U+1F92E` | 🤮 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F92E.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F92E.png) | — | Face Vomiting *(new)* |
+| `U+1F970` | 🥰 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F970.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F970.png) | — | Smiling Face with Hearts *(new)* |
+| `U+1F97A` | 🥺 | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/small/U+1F97A.png) | [png](https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-glyphs/large/U+1F97A.png) | — | Pleading Face *(new)* |
 
 ### Deprecated emoji symbols
 
 The following emoji characters are **no longer available on the Aplite
 platform**. The guide shows them only as an image
-(`/assets/images/guides/pebble-apps/resources/emoji-unsupported.png`), with no
-codepoint list — look there before assuming an emoji renders on Aplite.
+(`https://developer.rebble.com/assets/images/guides/pebble-apps/resources/emoji-unsupported.png`),
+with no codepoint list — look there before assuming an emoji renders on Aplite.

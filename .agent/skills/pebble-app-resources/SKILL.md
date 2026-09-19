@@ -1,44 +1,74 @@
 ---
 name: pebble-app-resources
 description: |
-  Pebble app resource reference: bitmap/PNG resources and their memory and storage optimization, custom TTF fonts with characterRegex, the system FONT_KEY catalog, the supported emoji codepoints, the binary Pebble Draw Command (PDC / PDCI / PDCS) format, launcher menu icons, the official 64-color palettes, and the ready-made icon asset packs. Use when adding or optimizing an entry in package.json's resources.media, choosing or limiting a font, drawing an emoji on a TextLayer, reading or writing a .pdc file, setting up a watchapp menu icon, or wondering why an image is too big for a 1-bit platform.
+  Pebble app resource reference: bitmap/PNG resources and their memory and storage optimization, custom TTF fonts with characterRegex, the system FONT_KEY catalog with preview-image links, the supported emoji codepoints with their small/large/jumbomoji renderings, the binary Pebble Draw Command (PDC / PDCI / PDCS) format, APNG animated images, raw data resources, platform-specific resource tagging, launcher menu icons, the official 64-color palettes, and the ready-made icon asset packs. Use when adding or optimizing an entry in package.json's resources.media, choosing or limiting a font, drawing an emoji on a TextLayer, reading or writing a .pdc file, animating an image, restricting a resource to some platforms, setting up a watchapp menu icon, or wondering why an image is too big for a 1-bit platform.
 ---
 
 # Pebble app resources
 
-Offline copy of the five `developer.rebble.com` app-resource guides, with the
-tables and code samples intact. Everything here is source-of-truth from those
-guides; anything added from the SDK or from this repo is marked `[repo]` or
-`[SDK]`.
+Offline copy of the `developer.rebble.com` app-resource guides, with the tables
+and code samples intact. Everything here is source-of-truth from those guides;
+anything added from the SDK or from this repo is marked `[repo]` or `[SDK]`.
 
-Source pages (canonical, re-check if a claim looks stale):
+**Target hardware is Emery (Pebble Time 2).** Where the guides distinguish per
+platform, the Emery/Basalt/Chalk rendering is the default answer here; check the
+1-bit column when a change also has to survive Aplite/Diorite/Flint, which
+`pl8s` still ships to.
 
-| Reference                 | Upstream URL                                                  |
-|---------------------------|---------------------------------------------------------------|
-| [images.md](references/images.md)               | `https://developer.rebble.com/guides/app-resources/images/`               |
-| [fonts.md](references/fonts.md)                 | `https://developer.rebble.com/guides/app-resources/fonts/`                |
-| [system-fonts.md](references/system-fonts.md)   | `https://developer.rebble.com/guides/app-resources/system-fonts/`         |
-| [pdc-format.md](references/pdc-format.md)       | `https://developer.rebble.com/guides/app-resources/pdc-format/`           |
-| [app-assets.md](references/app-assets.md)       | `https://developer.rebble.com/guides/app-resources/app-assets/`           |
+## The guides
 
-Pages in the same guide section that are **not** mirrored here: *Animated
-Images*, *Converting SVG to PDC*, *Platform-specific Resources*, *Raw Data
-Files*.
+| Reference | Page |
+|-----------|------|
+| [images.md](references/images.md)                             | `…/app-resources/images/` |
+| [fonts.md](references/fonts.md)                               | `…/app-resources/fonts/` |
+| [system-fonts.md](references/system-fonts.md)                 | `…/app-resources/system-fonts/` |
+| [pdc-format.md](references/pdc-format.md)                     | `…/app-resources/pdc-format/` |
+| [app-assets.md](references/app-assets.md)                     | `…/app-resources/app-assets/` |
+| [animated-images.md](references/animated-images.md)           | `…/app-resources/animated-images/` |
+| [platform-specific.md](references/platform-specific.md)       | `…/app-resources/platform-specific/` |
+| [raw-data-files.md](references/raw-data-files.md)             | `…/app-resources/raw-data-files/` |
+| *not mirrored*                                                | `…/app-resources/converting-svg-to-pdc/` — <https://developer.rebble.com/guides/app-resources/converting-svg-to-pdc/> |
+
+Base URL for every page above is
+`https://developer.rebble.com/guides/app-resources/<name>/`.
+
+*Converting SVG to PDC* is deliberately not mirrored: it is mostly a walkthrough
+of third-party converters, so read it at the URL above.
+
+> **Provenance.** `animated-images.md`, `platform-specific.md` and
+> `raw-data-files.md` were mirrored from the older `developer.rebble.io` mirror
+> on 2026-09-19, because the `rebble.com` zone was returning SERVFAIL from every
+> public resolver. That mirror **trails** the live site — most visibly, its
+> platform tag table has no `gabbro`. Re-check those three against
+> `developer.rebble.com` when the zone resolves. The other five were read from
+> `developer.rebble.com` directly.
 
 ## Routing
 
-| Task                                                | Read                                       |
-|-----------------------------------------------------|--------------------------------------------|
-| Add a bitmap, shrink an image, set a menu icon      | [images.md](references/images.md)          |
-| Add a custom font, trim its glyphs, system font use | [fonts.md](references/fonts.md)            |
-| Pick a `FONT_KEY_*`, or print an emoji              | [system-fonts.md](references/system-fonts.md) |
-| Parse or emit a `.pdc` binary                        | [pdc-format.md](references/pdc-format.md)  |
-| Grab ready-made icons or a color palette            | [app-assets.md](references/app-assets.md)  |
+| Task                                                | Read |
+|-----------------------------------------------------|------|
+| Add a bitmap, shrink an image, set a menu icon      | [images.md](references/images.md) |
+| Add a custom font, trim its glyphs, system font use | [fonts.md](references/fonts.md) |
+| Pick a `FONT_KEY_*`, see a preview, print an emoji  | [system-fonts.md](references/system-fonts.md) |
+| Parse or emit a `.pdc` binary                       | [pdc-format.md](references/pdc-format.md) |
+| Grab ready-made icons or a color palette            | [app-assets.md](references/app-assets.md) |
+| Ship an animated image                              | [animated-images.md](references/animated-images.md) |
+| Vary a file per platform, or include one only there | [platform-specific.md](references/platform-specific.md) |
+| Embed a data blob (PDC/APNG input, CSV, strings)    | [raw-data-files.md](references/raw-data-files.md) |
+| Convert an SVG to PDC                               | the un-mirrored guide, linked above |
+
+## Seeing what a font or emoji looks like
+
+[system-fonts.md](references/system-fonts.md) links a preview image for every
+one of the 25 `FONT_KEY`s — an **Emery** rendering and a **1-bit** rendering —
+and links the **small**, **large** and **jumbomoji** artwork for each of the 118
+supported emoji codepoints. Open the link to see it; the URLs are the site's own
+asset paths, so they need a live connection to `developer.rebble.com`.
 
 ## The resource entry
 
-Every resource is an object in `package.json` →
-`pebble.resources.media[]`. The `name` becomes `RESOURCE_ID_<NAME>` in C.
+Every resource is an object in `package.json` → `pebble.resources.media[]`. The
+`name` becomes `RESOURCE_ID_<NAME>` in C.
 
 ```json
 { "type": "bitmap", "name": "EXAMPLE_IMAGE", "file": "background.png" }
@@ -48,7 +78,7 @@ Keys that matter and are easy to get wrong:
 
 | Key                | Applies to | Values |
 |--------------------|------------|--------|
-| `type`             | all        | `bitmap`, `font`, plus legacy `png` / `pbi` / `pbi8` |
+| `type`             | all        | `bitmap`, `font`, `raw`, plus legacy `png` / `pbi` / `pbi8` |
 | `memoryFormat`     | bitmap     | `Smallest` (default), `SmallestPalette`, `1Bit`, `8Bit`, `1BitPalette`, `2BitPalette`, `4BitPalette` |
 | `storageFormat`    | bitmap     | `pbi`, `png` |
 | `spaceOptimization`| bitmap     | `storage`, `memory` — `memory` is the Aplite default, `storage` everywhere else |
@@ -57,7 +87,9 @@ Keys that matter and are easy to get wrong:
 | `menuIcon`         | bitmap     | `true` marks the 25x25 launcher icon |
 | `targetPlatforms`  | all        | restrict an entry to some platforms |
 
-`file` is relative to the project's `resources/` directory.
+`file` is relative to the project's `resources/` directory. A filename carrying
+`~tag~tag` variants is declared **without** the tags — the build resolves them
+(see [platform-specific.md](references/platform-specific.md)).
 
 - A `bitmap` name **need not** encode a size; a `font` name **must end in the
   point size** (`EXAMPLE_FONT_20`), and the guide caps the recommended size at
@@ -83,6 +115,8 @@ Keys that matter and are easy to get wrong:
   be destroyed.
 - **Only Gothic 18 / 18 Bold / 24 / 24 Bold carry emoji, and not the full
   range.** Aplite dropped several that the other platforms keep.
+- **An animated image costs an 8-bit frame buffer** (`GBitmapFormat8Bit`) for as
+  long as the sequence lives.
 
 ## [repo] Current state of pl8s
 
