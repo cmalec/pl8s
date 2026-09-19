@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Generate the pl8s menu icon (25x25 PNG) with no external deps.
 
-White barbell glyph on transparent background, drawn as a pixel map.
+Black barbell glyph on a transparent background, drawn as a pixel map. The
+launcher lists apps on a light background, where a white glyph disappears.
 """
 import struct
 import zlib
 
 W = H = 25
 
-# Pixel map: rows of '#' = white pixel
+# Pixel map: rows of '#' = black pixel
 ART = """
 .........................
 .........................
@@ -34,7 +35,7 @@ for y in range(H):
     row = bytearray([0])  # filter type 0
     for x in range(W):
         if x < len(line) and line[x] == "#":
-            row += bytes([255, 255, 255, 255])
+            row += bytes([0, 0, 0, 255])
         else:
             row += bytes([0, 0, 0, 0])
     rows.append(bytes(row))
