@@ -6,7 +6,7 @@ description: |
 
 # Pebble app resources
 
-Offline copy of the `developer.rebble.com` app-resource guides, with the tables
+Offline copy of the `developer.repebble.com` app-resource guides, with the tables
 and code samples intact. Everything here is source-of-truth from those guides;
 anything added from the SDK or from this repo is marked `[repo]` or `[SDK]`.
 
@@ -27,21 +27,13 @@ platform, the Emery/Basalt/Chalk rendering is the default answer here; check the
 | [animated-images.md](references/animated-images.md)           | `…/app-resources/animated-images/` |
 | [platform-specific.md](references/platform-specific.md)       | `…/app-resources/platform-specific/` |
 | [raw-data-files.md](references/raw-data-files.md)             | `…/app-resources/raw-data-files/` |
-| *not mirrored*                                                | `…/app-resources/converting-svg-to-pdc/` — <https://developer.rebble.com/guides/app-resources/converting-svg-to-pdc/> |
+| *not mirrored*                                                | `…/app-resources/converting-svg-to-pdc/` — <https://developer.repebble.com/guides/app-resources/converting-svg-to-pdc/> |
 
 Base URL for every page above is
-`https://developer.rebble.com/guides/app-resources/<name>/`.
+`https://developer.repebble.com/guides/app-resources/<name>/`.
 
 *Converting SVG to PDC* is deliberately not mirrored: it is mostly a walkthrough
 of third-party converters, so read it at the URL above.
-
-> **Provenance.** `animated-images.md`, `platform-specific.md` and
-> `raw-data-files.md` were mirrored from the older `developer.rebble.io` mirror
-> on 2026-09-19, because the `rebble.com` zone was returning SERVFAIL from every
-> public resolver. That mirror **trails** the live site — most visibly, its
-> platform tag table has no `gabbro`. Re-check those three against
-> `developer.rebble.com` when the zone resolves. The other five were read from
-> `developer.rebble.com` directly.
 
 ## Routing
 
@@ -59,11 +51,12 @@ of third-party converters, so read it at the URL above.
 
 ## Seeing what a font or emoji looks like
 
-[system-fonts.md](references/system-fonts.md) links a preview image for every
+[system-fonts.md](references/system-fonts.md) embeds a preview image for every
 one of the 25 `FONT_KEY`s — an **Emery** rendering and a **1-bit** rendering —
-and links the **small**, **large** and **jumbomoji** artwork for each of the 118
-supported emoji codepoints. Open the link to see it; the URLs are the site's own
-asset paths, so they need a live connection to `developer.rebble.com`.
+and a link to the **small**, **large** and **jumbomoji** artwork for each of the
+118 supported emoji codepoints. The previews render inline in any markdown
+viewer; the URLs are the site's own asset paths, so they need a live connection
+to `developer.repebble.com`.
 
 ## The resource entry
 

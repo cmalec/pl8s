@@ -1,12 +1,6 @@
 # Platform-specific resources
 
-Source: <https://developer.rebble.com/guides/app-resources/platform-specific/>
-
-> **Provenance:** this page body was mirrored from the older
-> `developer.rebble.io` mirror on 2026-09-19 because the `rebble.com` zone was
-> returning SERVFAIL from every resolver. The mirror **trails** the live site:
-> its tag table has no `gabbro` column, while the live site lists `gabbro`
-> among the target platforms. Re-check against the `.com` URL when it is back.
+Source: <https://developer.repebble.com/guides/app-resources/platform-specific/>
 
 Different versions of a resource can be used on different platforms by "tagging"
 resource files with the attributes that make them relevant to a given platform.
@@ -26,8 +20,8 @@ resource files with the attributes that make them relevant to a given platform.
 |         | strappower | strappower |         | strappower |         |
 |         | health     | health     | health  | health     | health  |
 
-`gabbro` (Pebble Time Round 2) is absent from this mirror's table; the live site
-lists it. Its geometry is 260w x 260h and it is a `round` / `color` platform.
+The tag table covers six platforms; `gabbro` is not among them, so it has no
+documented tag. Prefer the descriptive tags if you support it — see below.
 
 ## Tagging a file
 

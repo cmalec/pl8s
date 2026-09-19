@@ -1,6 +1,6 @@
 # Images
 
-Source: <https://developer.rebble.com/guides/app-resources/images/>
+Source: <https://developer.repebble.com/guides/app-resources/images/>
 
 Images are stored in memory as a `GBitmap` while the app runs, and displayed either in a `BitmapLayer` or with `graphics_draw_bitmap_in_rect()`.
 
@@ -21,7 +21,7 @@ The guide's table omits `gabbro`; it is a color platform (see *Platform-specific
 
 ### Color palettes
 
-Palette files containing the 64 supported colors, for popular graphics packages. Base URL `https://developer.rebble.com`:
+Palette files containing the 64 supported colors, for popular graphics packages. Base URL `https://developer.repebble.com`:
 
 | Package                                    | File                                               |
 |--------------------------------------------|----------------------------------------------------|

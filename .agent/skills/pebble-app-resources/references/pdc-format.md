@@ -1,6 +1,6 @@
 # Pebble Draw Command file format
 
-Source: <https://developer.rebble.com/guides/app-resources/pdc-format/>
+Source: <https://developer.repebble.com/guides/app-resources/pdc-format/>
 
 Pebble Draw Commands (PDCs) are vector image files: a binary resource holding the instructions for each stroke, fill, and so on that makes up the image.
 
@@ -8,7 +8,7 @@ Pebble Draw Commands (PDCs) are vector image files: a binary resource holding th
 
 A reference implementation, with the guide's noted usage limitations, is
 [`svg2pdc.py`](https://github.com/pebble-examples/cards-example/blob/master/tools/svg2pdc.py)
-— see <https://developer.rebble.com/tutorials/advanced/vector-animations#creating-compatible-files>.
+— see <https://developer.repebble.com/tutorials/advanced/vector-animations#creating-compatible-files>.
 
 ## Component types
 
@@ -113,8 +113,8 @@ Both sizes are 4 bytes and the payload starts at offset 8, which is why the comp
 
 ## Related SDK docs and examples
 
-- [Draw Commands](https://developer.rebble.com/docs/c/Graphics/Draw_Commands/)
-- [LayerUpdateProc](https://developer.rebble.com/docs/c/User_Interface/Layers/#LayerUpdateProc)
-- [Graphics](https://developer.rebble.com/docs/c/Graphics/)
+- [Draw Commands](https://developer.repebble.com/docs/c/Graphics/Draw_Commands/)
+- [LayerUpdateProc](https://developer.repebble.com/docs/c/User_Interface/Layers/#LayerUpdateProc)
+- [Graphics](https://developer.repebble.com/docs/c/Graphics/)
 - [PDC Sequence example](https://github.com/pebble-examples/pdc-sequence)
 - [Weather Cards example](https://github.com/pebble-examples/cards-example)

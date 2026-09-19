@@ -1,10 +1,6 @@
 # Raw data files
 
-Source: <https://developer.rebble.com/guides/app-resources/raw-data-files/>
-
-> **Provenance:** mirrored from the older `developer.rebble.io` mirror on
-> 2026-09-19 while the `rebble.com` zone was SERVFAILing. Re-check against the
-> `.com` URL when it is back.
+Source: <https://developer.repebble.com/guides/app-resources/raw-data-files/>
 
 For data that is not a font or an image. When a file is included as a `raw`
 resource it is **not modified in any way** from the original when the app is

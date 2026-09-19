@@ -1,10 +1,6 @@
 # Animated images (APNG)
 
-Source: <https://developer.rebble.com/guides/app-resources/animated-images/>
-
-> **Provenance:** mirrored from the older `developer.rebble.io` mirror on
-> 2026-09-19 while the `rebble.com` zone was SERVFAILing. Re-check against the
-> `.com` URL when it is back.
+Source: <https://developer.repebble.com/guides/app-resources/animated-images/>
 
 Animated images are played with the `GBitmapSequence` API, which takes
 [APNG](https://en.wikipedia.org/wiki/APNG) files as input. APNG is similar to

@@ -1,6 +1,6 @@
 # Fonts
 
-Source: <https://developer.rebble.com/guides/app-resources/fonts/>
+Source: <https://developer.repebble.com/guides/app-resources/fonts/>
 
 Text can be drawn with a built-in system font or a custom font added as a project resource.
 
