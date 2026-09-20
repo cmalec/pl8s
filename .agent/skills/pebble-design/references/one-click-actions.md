@@ -143,6 +143,13 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
 }
 ```
 
+`[SDK]` The guide writes `app_exit_reason_set()` here, but **no such function exists**.
+The SDK declares `void exit_reason_set(AppExitReason exit_reason);` — drop the
+`app_` prefix. On Aplite it is a no-op macro (`#define exit_reason_set(...) do {}
+while(0)`), so it compiles on every platform but only has an effect on Basalt and
+newer. See the
+[App Exit Reason guide](../../pebble-user-interfaces/references/app-exit-reason.md).
+
 Before the application terminates, update the `App Glance` with the current state
 by passing the lock state into `app_glance_reload`:
 
