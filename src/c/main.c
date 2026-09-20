@@ -166,10 +166,6 @@ static int plate_h(int i) {
 #define HEADER_Y 0
 #endif
 
-// Rows stop short of the bottom of the glass by this much: at the very bottom
-// the mask's chord is too narrow to hold a row.
-#define BOTTOM_MARGIN (EDGE_INSET ? 40 : 4)
-
 #if defined(PBL_ROUND)
 /** Integer square root (Newton's method), for the mask geometry below. */
 static int isqrt(int n) {
@@ -623,51 +619,90 @@ static void load_labels(void) {
 }
 #endif  // PBL_COLOR && LAYOUT_LARGE
 
+// Height available to the rows: the window's unobstructed height less the
+// header and whatever the footer or the round mask needs at the bottom.
+//
+// layer_get_unobstructed_bounds() is what the guides prescribe as the source
+// for layout size ("avoid hardcoded layout values"), and it is a no-op
+// difference here: the Timeline Quick View only overlays watchfaces, and this
+// is a watchapp, so it always equals layer_get_bounds(). Aplite's SDK even
+// defines it as exactly that. Using it keeps the layout honest if that ever
+// changes, and it collapses the two copies of this arithmetic that had drifted
+// apart (the load path reserved 28px on round displays, the step-change path
+// reserved 40px, so rows visibly jumped after a step change).
+static int rows_avail_h(void) {
+  GRect usable = layer_get_unobstructed_bounds(s_root);
+  int avail = usable.size.h - TOP_Y;
+#if LAYOUT_LARGE
+  avail -= (EDGE_INSET ? 28 : 4);
+#else
+  avail -= EDGE_INSET ? 36 : 20;  // footer, and the mask on round displays
+#endif
+  return avail;
+}
+
+// Position the row layers for the current s_row_h. Shared by initial creation
+// and by the unobstructed-area handler, which moves rows without recreating
+// them (the handler runs on every frame of the peek animation).
+static void layout_rows(void) {
+  GRect full = layer_get_bounds(s_root);
+  int w = full.size.w;
+  int h = full.size.h;
+  layer_set_frame(s_glyph_layer, GRect(0, TOP_Y, w, s_row_h * s_num_rows));
+  for (int row = 0; row < s_num_rows; row++) {
+    int row_y = TOP_Y + row * s_row_h;
+    // On round displays the text steps inward with the glyph, so a row's
+    // columns stay inside that row's slice of the mask. The mask is a
+    // property of the physical glass, so this uses the *full* bounds.
+    int inset = row_inset(w, h, row_y, s_row_h);
+#if LAYOUT_LARGE
+    GRect pct_frame = GRect(8 + inset, row_y + (s_row_h - 16) / 2, PCT_W, 16);
+#else
+    GRect pct_frame = GRect(8 + inset, row_y, PCT_W, s_row_h);
+#endif
+    GRect weight_frame = GRect(WEIGHT_X + inset, row_y, WEIGHT_W, s_row_h);
+    layer_set_frame(text_layer_get_layer(s_pct_layers[row]), pct_frame);
+    layer_set_frame(text_layer_get_layer(s_weight_layers[row]), weight_frame);
+  }
+#if !LAYOUT_LARGE
+  if (s_footer_layer != NULL) {
+    // Just above the bottom of the unobstructed area, so it stays visible
+    // when the Timeline Peek is up, and clears the round mask.
+    GRect usable = layer_get_unobstructed_bounds(s_root);
+    layer_set_frame(text_layer_get_layer(s_footer_layer),
+                    GRect(0, usable.size.h - (EDGE_INSET ? 34 : 22), w, 20));
+  }
+#endif
+  layer_mark_dirty(s_glyph_layer);
+}
+
 // Create the glyph + per-row text layers for the current s_num_rows layout.
-static void create_row_layers(Layer *root, int w, int h) {
-  (void)root;
-  (void)h;
-  s_glyph_layer = layer_create(GRect(0, TOP_Y, w, s_row_h * s_num_rows));
+static void create_row_layers(void) {
+  s_glyph_layer = layer_create(GRect(0, TOP_Y, 0, 0));
   layer_set_update_proc(s_glyph_layer, glyph_update_proc);
 
   static char pct_bufs[MAX_ROWS][16];
   for (int row = 0; row < s_num_rows; row++) {
-    GRect row_frame = GRect(0, TOP_Y + row * s_row_h, w, s_row_h);
-    // On round displays the text steps inward with the glyph, so a row's
-    // columns stay inside that row's slice of the mask.
-    int inset = row_inset(w, h, TOP_Y + row * s_row_h, s_row_h);
-#if LAYOUT_LARGE
-    GRect pct_frame = GRect(8 + inset,
-                            row_frame.origin.y + (s_row_h - 16) / 2,
-                            PCT_W, 16);
-#else
-    GRect pct_frame = GRect(8 + inset, row_frame.origin.y, PCT_W,
-                            s_row_h);
-#endif
-    GRect weight_frame = GRect(WEIGHT_X + inset, row_frame.origin.y,
-                               WEIGHT_W, s_row_h);
-
     // Percentages are always 2 digits (90..50).
     snprintf(pct_bufs[row], sizeof(pct_bufs[row]), "%2d%%",
              90 - row * s_pct_step);
 
     s_pct_layers[row] = make_text_layer(
-        pct_frame, fonts_get_system_font(FONT_PCT), COLOR_PCT,
+        GRect(0, 0, 0, 0), fonts_get_system_font(FONT_PCT), COLOR_PCT,
         GTextAlignmentLeft);
     text_layer_set_text(s_pct_layers[row], pct_bufs[row]);
 
 #if LAYOUT_LARGE
-    s_weight_layers[row] = make_text_layer(
-        weight_frame, fonts_get_system_font(FONT_WEIGHT), GColorWhite,
-        GTextAlignmentLeft);
+    GFont weight_font = fonts_get_system_font(FONT_WEIGHT);
 #else
     // 7 rows on a 168px display leaves ~16px rows: shrink the weight font.
     GFont weight_font = fonts_get_system_font(
         s_num_rows > 5 ? FONT_KEY_GOTHIC_14_BOLD : FONT_WEIGHT);
-    s_weight_layers[row] = make_text_layer(
-        weight_frame, weight_font, GColorWhite, GTextAlignmentLeft);
 #endif
+    s_weight_layers[row] = make_text_layer(
+        GRect(0, 0, 0, 0), weight_font, GColorWhite, GTextAlignmentLeft);
   }
+  layout_rows();
 }
 
 static void destroy_row_layers(void) {
@@ -710,26 +745,17 @@ static void rebuild_row_layers(void) {
   }
   load_labels();
 #endif
-  GRect b = layer_get_bounds(s_root);
   layer_remove_child_layers(s_root);
   destroy_row_layers();
-  int avail = b.size.h - TOP_Y;
-#if LAYOUT_LARGE
-  avail -= BOTTOM_MARGIN;
-#else
-  avail -= EDGE_INSET ? 36 : 20;  // footer, and the mask on round displays
-#endif
-  s_row_h = avail / s_num_rows;
-  create_row_layers(s_root, b.size.w, b.size.h);
+  s_row_h = rows_avail_h() / s_num_rows;
+  create_row_layers();
   add_all_layers(s_root);
 }
 
 static void results_window_load(Window *window) {
   APP_LOG(APP_LOG_LEVEL_INFO, "results window load");
   Layer *root = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(root);
-  int w = bounds.size.w;
-  int h = bounds.size.h;
+  int w = layer_get_bounds(root).size.w;
   s_root = root;
 
   window_set_background_color(window, GColorBlack);
@@ -740,10 +766,11 @@ static void results_window_load(Window *window) {
 
   s_num_rows = (s_pct_step == PCT_STEP_FINE) ? 7 : 5;
 
+  // Rows fill the unobstructed area below the header; rows_avail_h() also
+  // leaves room for the footer and, on round displays, the circular mask.
+  s_row_h = rows_avail_h() / s_num_rows;
+
 #if LAYOUT_LARGE
-  // Rows fill everything below a two-line header. Round displays need a
-  // bottom margin so the last row stays inside the circular mask.
-  s_row_h = (h - TOP_Y - (EDGE_INSET ? 28 : 4)) / s_num_rows;
   GRect header = GRect(0, 2, w, HEADER_H);
   s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
                                   COLOR_TITLE, GTextAlignmentCenter);
@@ -752,17 +779,16 @@ static void results_window_load(Window *window) {
                                  COLOR_PCT, GTextAlignmentCenter);
   text_layer_set_text(s_hint_layer, "per side  |  SEL: step/plates");
 #else
-  // Rows stop above the footer, and on round displays above the mask as well.
-  s_row_h = (h - TOP_Y - (EDGE_INSET ? 36 : 20)) / s_num_rows;
   GRect header = GRect(0, HEADER_Y, w, HEADER_H);
   s_title_layer = make_text_layer(header, fonts_get_system_font(FONT_HEADER),
                                   COLOR_TITLE, GTextAlignmentCenter);
 #endif
 
 #if !LAYOUT_LARGE
-  // Round displays: the footer keeps clear of the narrow bottom of the mask.
-  GRect footer = GRect(0, h - (EDGE_INSET ? 34 : 22), w, 20);
-  s_footer_layer = make_text_layer(footer, fonts_get_system_font(FONT_FOOTER),
+  // Positioned by layout_rows(), which keeps it above the unobstructed
+  // bottom edge so the peek does not cover it.
+  s_footer_layer = make_text_layer(GRect(0, 0, 0, 0),
+                                   fonts_get_system_font(FONT_FOOTER),
                                    COLOR_FOOTER, GTextAlignmentCenter);
   text_layer_set_text(s_footer_layer, "SEL: step/plates");
 #endif
@@ -771,7 +797,7 @@ static void results_window_load(Window *window) {
   load_labels();
 #endif
 
-  create_row_layers(root, w, h);
+  create_row_layers();
   add_all_layers(root);
   update_ui();
 }
