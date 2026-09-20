@@ -102,6 +102,13 @@ It uses only `TextLayer` (plus raw `Layer` drawing) — no `MenuLayer`, `ScrollL
 `StatusBarLayer`, `ActionBarLayer` or `BitmapLayer`. It uses no `AppGlance`,
 `AppExitReason`, `ContentSize` or UnobstructedArea API.
 
-**The one live gap:** pl8s never calls `layer_get_unobstructed_bounds()`, so its
-layout does not react when the timeline Quick View covers the bottom of the
-screen. See [unobstructed-area.md](references/unobstructed-area.md).
+**Timeline Quick View does not affect pl8s.** The UnobstructedArea API is a
+*watchface* feature: the peek overlays the watchface, never a running watchapp.
+Verified on the emery emulator with `pebble emu-set-timeline-quick-view on` —
+over the watchface it changes 28.9% of pixels, but with the app foregrounded
+(and even with a real pin inserted via `pebble insert-pin`) it changes
+**0 pixels**. So pl8s needs no obstruction handling and has no subscription.
+
+Its layout does call `layer_get_unobstructed_bounds()` — the bounds source the
+guides prescribe — which for a watchapp is always equal to `layer_get_bounds()`,
+and on Aplite the SDK defines it as exactly that.

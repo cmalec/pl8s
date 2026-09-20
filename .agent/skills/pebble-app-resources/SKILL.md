@@ -113,10 +113,16 @@ Keys that matter and are easy to get wrong:
 
 ## [repo] Current state of pl8s
 
-As of 2026-09-19: all 17 entries in `package.json` → `resources.media` use the
-legacy `"type": "png"`, including `IMAGE_MENU_ICON`
-(`resources/images/menu_icon.png`, 25x25 RGBA, `menuIcon: true`). `pl8s` targets
-`aplite`, where the guide discourages that type and where the menu icon's
-inversion mode expects a 1-bit black-and-white icon. Worth converting to
-`bitmap` entries with explicit `memoryFormat` / `spaceOptimization` when
-resource size or Aplite memory becomes a problem.
+All 17 `resources.media` entries are `"type": "bitmap"` (they were legacy
+`"type": "png"`, which resolves to `storageFormat: png` and is unoptimized on
+Aplite). Dropping the legacy type cut Aplite's resource pack from 6031 to 5559
+bytes.
+
+The launcher icon is split with the tilde mechanism: `menu_icon~bw.png` (1-bit
+greyscale, black on white) for Aplite/Diorite/Flint, `menu_icon~color.png`
+(RGBA, black on transparent) for the colour platforms, both declared from one
+`"file": "images/menu_icon.png"` entry with `"menuIcon": true`. That one entry
+is required — the SDK's appinfo generator rejects a second `menuIcon` outright
+("More than one resource is set to be your menuIcon!"), so the guide's
+`targetPlatforms` two-entry example does not work for this resource.
+`tools/make_icon.py` regenerates both variants from one pixel map.

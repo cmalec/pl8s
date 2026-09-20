@@ -93,13 +93,18 @@ pl8s already follows most of this:
   `Animation` or `AppTimer`, so it has no obvious time-awake drain. It uses
   `persist_*` for storage and opens `AppMessage` once.
 
-Two gaps worth knowing about:
+Two items that came up, both now resolved:
 
-1. **It uses `layer_get_bounds()`, never `layer_get_unobstructed_bounds()`.** The
-   timeline peek can push over the bottom of the display; the plain bounds value
-   does not account for it. This is the one concrete compatibility item from these
-   guides that applies to pl8s today.
-2. **`src/c/main.c` is 961 lines**, which is past the guide's "several hundred"
-   threshold. It already has a module-shaped precedent in `plate_math.{c,h}` —
-   following the guide's layout would mean `src/modules/` and `src/windows/` with
-   a thin `main.c`.
+1. **Layout bounds.** It used to compute geometry from `layer_get_bounds()` in
+   two places that had drifted apart — the window-load path reserved 28px at the
+   bottom on round displays, the step-change path reserved 40px, so rows visibly
+   jumped after changing the step. Both now go through one `rows_avail_h()`
+   helper built on `layer_get_unobstructed_bounds()` (the bounds source the guide
+   prescribes; equal to `layer_get_bounds()` for a watchapp, and defined as
+   exactly that on Aplite).
+2. **`src/c/main.c` is still ~980 lines**, past the guide's "several hundred"
+   threshold for modularizing. `plate_math.{c,h}` is already a module-shaped
+   precedent; the guide's layout would mean `src/modules/` and `src/windows/`
+   with a thin `main.c`. Not done — it is a structural change to a working,
+   published app with no behavioural payoff, so it is a deliberate call rather
+   than an oversight.

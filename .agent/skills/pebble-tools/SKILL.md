@@ -91,7 +91,7 @@ path.
 - It targets all seven platforms, so the **max app size / max resource size**
   columns in [hardware-information.md](references/hardware-information.md) are the
   binding constraint — Aplite is the smallest budget by a wide margin.
-- It ships 17 PNG resources and colours them with `GColor` constants, so
+- It ships 17 bitmap resources and colours them with `GColor` constants, so
   [color-picker.md](references/color-picker.md) is the lookup table for picking
   values that survive the 1-bit platforms (see `pebble-app-resources` on luminance
   mapping).
