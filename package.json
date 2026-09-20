@@ -47,87 +47,87 @@
           "file": "images/menu_icon.png",
           "menuIcon": true,
           "name": "IMAGE_MENU_ICON",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_55.png",
           "name": "LABEL_55",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_45.png",
           "name": "LABEL_45",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_35.png",
           "name": "LABEL_35",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_25.png",
           "name": "LABEL_25",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_15.png",
           "name": "LABEL_15",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_10.png",
           "name": "LABEL_10",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_5.png",
           "name": "LABEL_5",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_2p5.png",
           "name": "LABEL_2P5",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_55c.png",
           "name": "LABEL_55C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_45c.png",
           "name": "LABEL_45C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_35c.png",
           "name": "LABEL_35C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_25c.png",
           "name": "LABEL_25C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_15c.png",
           "name": "LABEL_15C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_10c.png",
           "name": "LABEL_10C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_5c.png",
           "name": "LABEL_5C",
-          "type": "png"
+          "type": "bitmap"
         },
         {
           "file": "images/label_2p5c.png",
           "name": "LABEL_2P5C",
-          "type": "png"
+          "type": "bitmap"
         }
       ]
     }
