@@ -22,9 +22,20 @@ The portal wants one *asset collection* per supported platform, so the descripti
 | Small icon (48x48)   | `appstore/icon-48.png`                                       |
 
 **Published** at <https://apps.rebble.io/en_US/application/6aaf0625cf733a0009498c27>
-(1.0.0, live). 1.0.1 changes the launcher menu icon to black - the white glyph
-was invisible in the app list - so it only needs the release uploaded and
-published on the existing listing.
+(1.0.0, live). 1.0.1 needs only the release uploaded and published on the
+existing listing. It carries three changes:
+
+- **The launcher icon is black.** The white glyph was invisible in the app list.
+- **The icon ships in both display forms**: a 1-bit black-on-white glyph for
+  Aplite/Diorite/Flint, whose launcher-icon inversion mode requires 1Bit and
+  does not handle transparency, and an RGBA one for the colour platforms.
+- **Resources are declared as `bitmap`** rather than the legacy `png` type,
+  which resolves to `storageFormat: png` and is unoptimized on Aplite. This cut
+  Aplite's resource pack from 6031 to 5559 bytes.
+
+Rendering is unchanged on every platform: the Aplite results screen is
+pixel-identical to the screenshot already in this directory (0 differing pixels
+of 24192), so no assets needed regenerating.
 
 The assets are generated, not hand-made, so the next release just reruns them (both need `pebble build` first):
 
@@ -100,5 +111,5 @@ A watchapp collection also takes up to three header images (also 720x320) for th
 - [x] `main` pushed: the live page at <https://cmalec.github.io/pl8s/config.html> matches `config.html` byte for byte (checked with `curl -sS ... | cmp - config.html`), so the settings page sends and accepts 99 as unlimited
 - [x] Read the portal's legal agreements while logging in
 - [x] Published 1.0.0: <https://apps.rebble.io/en_US/application/6aaf0625cf733a0009498c27>
-- [ ] Upload and publish `releases/pl8s-v1.0.1.pbw` (black launcher icon)
+- [ ] Upload and publish `releases/pl8s-v1.0.1.pbw` (black 1-bit launcher icon, bitmap resources)
 - [ ] After the release is public: install from the appstore on a real watch and open the settings gear, which is the one path the emulator test cannot cover end to end (it needs the phone app)
