@@ -15,7 +15,7 @@ The portal wants one *asset collection* per supported platform, so the descripti
 | Source code URL      | `https://github.com/cmalec/pl8s`                             |
 | Website URL          | optional - leave blank (the source repo is the project page) |
 | Support email        | cmalec@users.noreply.github.com                              |
-| Release              | `releases/pl8s-v1.0.1.pbw` (all seven platforms, SDK 4.33.1) |
+| Release              | `releases/pl8s-v1.1.0.pbw` (all seven platforms, SDK 4.33.1) |
 | UUID                 | `c48ee385-2cee-4663-a08a-ac5078874a7b`                       |
 | Platforms            | aplite, basalt, chalk, diorite, emery, flint, gabbro         |
 | Large icon (144x144) | `appstore/icon-144.png`                                      |
@@ -32,6 +32,11 @@ existing listing. It carries three changes:
 - **Resources are declared as `bitmap`** rather than the legacy `png` type,
   which resolves to `storageFormat: png` and is unoptimized on Aplite. This cut
   Aplite's resource pack from 6031 to 5559 bytes.
+
+1.1.0 changes the backlight behavior: the screen lights with the app and
+releases the backlight after 30 seconds without a button press, instead of
+holding it on for as long as the app is open. Every button press re-arms the
+countdown. Rendering is unchanged, so the existing screenshots still apply.
 
 Rendering is unchanged on every platform: the Aplite results screen is
 pixel-identical to the screenshot already in this directory (0 differing pixels
@@ -56,6 +61,7 @@ pl8s ("plates") is a barbell percentage and plate calculator for your wrist. Ent
 - Plate glyph: the plates for each row are drawn side view, heaviest first
 - Your gym's plates: tell it how many of each size are on the rack (0-10 per side, or 99 for unlimited) and each weight snaps down to a load those plates make
 - Quick to change: nudge the max 5 lb at a time, hold SELECT for the on-watch settings wizard, or use the settings page in the phone app
+- Easy on the battery: the backlight lights when you open the app and turns back over to automatic control after 30 seconds without a button press
 - Remembers everything: max, step size and plate counts survive leaving the app
 
 Plates are colored as they are in the gym (55 red, 45 blue, 35 yellow, 25 green, 15 pink, 10 white, 5 cyan, 2.5 grey): a disc with its weight printed on the face on the large screens, a side-view bar on the compact ones, and the same drawing in black and white on 1-bit displays.

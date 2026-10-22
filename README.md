@@ -15,7 +15,7 @@ Enter your training max for an exercise and pl8s shows descending percentages wi
 - **Settings wizard** (hold SELECT): first set the percent step (5% or 10%), then step through each plate size (55/45/35/25/15/10/5/2.5 lb) and set how many the gym has: 0-10 per side, or 99 for unlimited (the default)
 - **Phone settings page**: the Pebble/Rebble phone app shows a gear icon next to pl8s (the app declares `capabilities: ["configurable"]`); tapping it opens a hosted webpage with the same settings, and saves push them to the watch over AppMessage. The watch keeps the on-device wizard too
 - **Always loadable weights**: percentages are snapped to the nearest weight the configured inventory can build exactly. With unlimited plates every 2.5 lb step is reachable; with a limited inventory the weight snaps DOWN to the heaviest buildable weight, never showing a load you can't make
-- **Backlight stays on** while the app is in the foreground (returns to automatic control on exit); the user-facing "backlight timeout" watch setting (`Settings > Display > Backlight`) is a separate system control
+- **Backlight timeout**: the screen lights up with the app and for 30 seconds after the last button press, then the backlight returns to automatic control (the watch's own `Settings > Display > Backlight` timeout takes over) instead of staying on and draining the battery
 - **Persistent**: max, percent step, and plate counts survive app exit
 - 45 lb Olympic bar assumed
 

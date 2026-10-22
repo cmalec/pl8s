@@ -86,12 +86,14 @@ pl8s already follows most of this:
   `PBL_DISPLAY_HEIGHT` for its `LAYOUT_LARGE` path, with a comment saying so
   explicitly. It uses `PBL_ROUND` and `PBL_COLOR` conditionals throughout and
   defines no `144`/`168` magic screen sizes.
-- Backlight handling is correct: `light_enable(true)` on the results window load,
-  `light_enable(false)` on unload, which is exactly what the battery guide asks
-  for.
-- No `tick_timer_service_subscribe`, accelerometer, compass, `Vibes`,
-  `Animation` or `AppTimer`, so it has no obvious time-awake drain. It uses
-  `persist_*` for storage and opens `AppMessage` once.
+- Backlight handling follows the battery guide: `light_enable(true)` when the
+  results window appears, then `light_enable(false)` after 30 s with no button
+  press and on unload, so an idle screen never holds the LED on. Any button
+  press re-arms the countdown. The one-shot `AppTimer` is the only timer in the
+  app; it does not wake the watch periodically.
+- No `tick_timer_service_subscribe`, accelerometer, compass, `Vibes` or
+  `Animation`, so it has no obvious time-awake drain. It uses `persist_*` for
+  storage and opens `AppMessage` once.
 
 Two items that came up, both now resolved:
 

@@ -6,8 +6,9 @@
  * percentages (90/80/70/60/50 or 90..60 in 5% steps) with the weight to
  * load and a glyph of the plates needed per side. Large color displays
  * (emery/gabbro) draw each plate as a thick disc with its weight printed
- * horizontally on the face; the backlight stays on while the app is
- * foregrounded. Settings can be changed on the watch (hold SEL) or from
+ * horizontally on the face. The backlight lights for 30 s after the last
+ * button press, then returns to automatic control. Settings can be changed
+ * on the watch (hold SEL) or from
  * the phone app's config page (src/pkjs/index.js + config.html).
  *
  * Assumptions: 45 lb Olympic bar; plates 55/45/35/25/15/10/5/2.5 lb.
@@ -35,6 +36,11 @@
 #define PERSIST_KEY_STEP 3
 #define DEFAULT_MAX_LB 225
 #define NUDGE_LB 5
+
+// The results screen holds the backlight on so the plates stay readable in a
+// dim gym. Keeping it on forever drains the battery in hours, so release it
+// back to automatic control after this long without a button press.
+#define BACKLIGHT_TIMEOUT_MS 30000
 
 #define COUNT_DEFAULT COUNT_UNLIMITED
 
@@ -270,6 +276,44 @@ static int count_clamp(int v) {
     return COUNT_MAX_LITERAL;
   }
   return v > COUNT_UNLIMITED ? COUNT_UNLIMITED : v;
+}
+
+// ---------------------------------------------------------------------------
+// Backlight
+// ---------------------------------------------------------------------------
+
+static AppTimer *s_backlight_timer;
+
+static void backlight_release(void *context) {
+  (void)context;
+  s_backlight_timer = NULL;
+  light_enable(false);  // hand the light back to automatic control
+  APP_LOG(APP_LOG_LEVEL_INFO, "backlight released after %d ms idle",
+          BACKLIGHT_TIMEOUT_MS);
+}
+
+// Light the screen and (re)arm the idle countdown. Called when the results
+// window appears and on every button press on it.
+static void backlight_kick(void) {
+  light_enable(true);
+  if (s_backlight_timer != NULL) {
+    app_timer_reschedule(s_backlight_timer, BACKLIGHT_TIMEOUT_MS);
+  } else {
+    s_backlight_timer =
+        app_timer_register(BACKLIGHT_TIMEOUT_MS, backlight_release, NULL);
+    if (s_backlight_timer == NULL) {
+      light_enable(false);  // no timer: never hold the light hostage
+    }
+  }
+}
+
+// Cancel the countdown and return the light to system control (window unload).
+static void backlight_stop(void) {
+  if (s_backlight_timer != NULL) {
+    app_timer_cancel(s_backlight_timer);
+    s_backlight_timer = NULL;
+  }
+  light_enable(false);
 }
 
 // ---------------------------------------------------------------------------
@@ -552,11 +596,13 @@ static void open_number_window(void) {
 }
 
 static void results_select_handler(ClickRecognizerRef ref, void *context) {
+  backlight_kick();
   open_number_window();
 }
 
 static void results_select_long_handler(ClickRecognizerRef ref,
                                         void *context) {
+  backlight_kick();
   open_count_window();
 }
 
@@ -570,10 +616,12 @@ static void results_nudge(int delta) {
 }
 
 static void results_up_handler(ClickRecognizerRef ref, void *context) {
+  backlight_kick();
   results_nudge(NUDGE_LB);
 }
 
 static void results_down_handler(ClickRecognizerRef ref, void *context) {
+  backlight_kick();
   results_nudge(-NUDGE_LB);
 }
 
@@ -760,9 +808,10 @@ static void results_window_load(Window *window) {
 
   window_set_background_color(window, GColorBlack);
 
-  // Keep the backlight on while the results screen is foregrounded. The
-  // light snaps back to automatic control on unload/app exit.
-  light_enable(true);
+  // Light the screen now and start the 30 s idle countdown. Every button
+  // press re-arms it; when it expires the backlight returns to automatic
+  // control instead of staying on for as long as the app is open.
+  backlight_kick();
 
   s_num_rows = (s_pct_step == PCT_STEP_FINE) ? 7 : 5;
 
@@ -802,9 +851,15 @@ static void results_window_load(Window *window) {
   update_ui();
 }
 
+// Returning from max entry or the settings wizard counts as activity: relight
+// and restart the countdown so the screen is readable the moment you land.
+static void results_window_appear(Window *window) {
+  backlight_kick();
+}
+
 static void results_window_unload(Window *window) {
   APP_LOG(APP_LOG_LEVEL_INFO, "results window unload");
-  light_enable(false);  // return backlight to automatic control
+  backlight_stop();  // cancel the timer; return backlight to automatic control
 #if defined(PBL_COLOR) && LAYOUT_LARGE
   for (int i = 0; i < PLATE_N; i++) {
     if (s_label_bmps[i] != NULL) {
@@ -951,6 +1006,7 @@ static void init(void) {
   window_set_click_config_provider(s_results_window, results_click_provider);
   window_set_window_handlers(s_results_window, (WindowHandlers){
       .load = results_window_load,
+      .appear = results_window_appear,
       .unload = results_window_unload,
   });
   window_stack_push(s_results_window, true);
