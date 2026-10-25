@@ -6,3 +6,4 @@ __pycache__/
 .lock-waf_darwin_build
 /.idea/
 .DS_Store
+.env

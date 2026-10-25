@@ -69,6 +69,23 @@ pebble send-app-message --emulator emery --int 10000=5            # STEP
 pebble send-app-message --emulator emery --int 10001=315 10009=3  # MAX_LB, PLATE_2P5
 ```
 
+## Releasing
+
+`releases/` holds every published `.pbw`. The upload itself is scripted by the
+[`pebble-release`](.agent/skills/pebble-release/SKILL.md) skill, which posts to
+the appstore API the dev portal uses, so a release does not need the browser:
+
+```sh
+cp build/pl8s.pbw releases/pl8s-v$(jq -r .version package.json).pbw
+.agent/skills/pebble-release/scripts/release.sh --notes "backlight: release after 30 s without a button press"
+```
+
+It refuses a `.pbw` whose version or UUID disagrees with `package.json` (so a stale
+build cannot be published under the wrong version), needs release notes, and
+`--dry-run` prints the request without sending it. Credentials live in the
+gitignored `.env` (`REBBLE_API_TOKEN`, `REBBLE_APP_ID`; copy `.env.example`).
+Publishing state, icons and the asset collections are still portal work.
+
 ## Target platforms
 
 Built for **emery** (Pebble Time 2) first, with layout adaptations for the smaller rect displays (basalt/diorite/flint/aplite) and round displays (chalk/gabbro). On the round displays the rows step inward with the circular mask: each row's text and its plate glyph are inset to the widest chord that row has, so nothing is cut off by the glass.
@@ -81,6 +98,7 @@ src/pkjs/        Phone-side JavaScript (config page bridge)
 config.html      Self-contained phone settings page (host it on GitHub Pages)
 test/            Host unit tests (C), run by npm test
 tools/           Emulator test, screenshot OCR, asset generators (Python)
+releases/        Published .pbw files, one per appstore release
 resources/       Images, fonts, and other bundled resources
 package.json     Project metadata (UUID, platforms, resources, message keys)
 wscript          Build rules - usually no need to edit

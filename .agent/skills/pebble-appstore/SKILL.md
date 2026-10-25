@@ -37,7 +37,7 @@ The portal wants a *release build*, two icons, and one **asset collection per su
 3. **Screenshots per platform.** Capture the screens the listing should show, on every platform in `targetPlatforms`, from a factory-fresh emulator so the app is in its default state. `scripts/emulator.py` does the reset, launch and capture; drive the app-specific steps (open a menu, change a setting) with button presses.
 4. **Listing copy.** One description (≤1600 chars) reused for every collection, plus a one-line platform note per collection, because the collections exist to tailor the listing per platform. `templates/listing.md`
    is the sheet to fill in and keep next to the assets.
-5. **Pre-flight, then submit.** Run `scripts/audit_assets.py`, tick the checklist, then in the portal: Add a Watchapp → basic info + icons → upload and **publish** the release → create the asset collections → publish the listing.
+5. **Pre-flight, then submit.** Run `scripts/audit_assets.py`, tick the checklist, then in the portal: Add a Watchapp → basic info + icons → upload and **publish** the release → create the asset collections → publish the listing. The release upload itself is scripted in the `pebble-release` skill (`scripts/release.sh` there) instead of the portal's file dialog.
 6. **After publishing.** Copy the appstore and deep links, and install from the appstore on a real watch once: the phone-app paths (settings gear, companion app) are the ones emulators cannot cover.
 
 ## Emulator gotchas that cost real time
